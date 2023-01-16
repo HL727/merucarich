@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% load widget_tweaks %}
+
+{% block title %} AmazonAPI設定{% endblock %}
+
+{% block script_onload %}
+
+Utils.selectAmazonSetting();
+{% if message %}
+Utils.dialog('{{ message }}', '{{ message_detail}}');
+{% endif %}
+
+{% endblock %}
+
+{% block html_body %} 
+<div class="container">
+  <center>
+    <h2>AmazonAPI設定</h2>
+    <br>
+    <p>MWS認証トークンを設定してください。</p>
+    <p><span style="font-weight: bold;">入力内容が間違えていると機能の大半が利用できないため、確認ボタンによるチェックを強く勧めます。</span></p>
+  </center>
+
+  <form class="form-horizontal" action="{% url 'settings_amazon:api_settings'  %}" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      {{ form.account_id.label_tag }}<br>
+      {{ form.account_id | add_class:"form-control" }}<br>
+    </div>
+    <div class="form-group">
+      {{ form.auth_token.label_tag }}<br>
+      {{ form.auth_token | add_class:"form-control" }}<br>
+    </div>
+    <div id="check-result" style="display: none;">
+      <p>チェック結果: <span id="check-result-text" style="font-weight: bold; color: red;"></span></p>
+    </div>
+    <button id="validation" type="button">入力内容の確認</button>&nbsp;
+    <input type="submit" value="登録" />
+  </form>
+</div>
+  
+<script type="text/javascript">
+  $(function() {
+    $('#validation').click(function() {
+      $('#check-result-text').text('現在入力内容をチェック中です...');
+      $('#check-result').show();
+      var csrfToken = $($('input[name="csrfmiddlewaretoken"]')[0]).val();
+      $.post({
+        url: "{% url 'settings_amazon:api_token_validation' %}",
+        data: {
+          csrfmiddlewaretoken: csrfToken,
+          account_id: $('#id_account_id').val(),
+          auth_token: $('#id_auth_token').val(),
+          keyword: 'フィギュア'
+        }
+      }).done(function(data) {
+        $('#check-result-text').text(data.message);
+      }).fail(function() {
+        $('#check-result-text').text('入力内容の確認に失敗しました。');
+      });
+    });
+  });
+</script>
+{% endblock %}
+
+
+

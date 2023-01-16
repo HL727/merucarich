@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %} Amazonカテゴリー順序設定{% endblock %}
+
+{% block script_onload %}
+
+Utils.selectAmazonSetting();
+{% if message %}
+Utils.dialog('{{ message }}', '{{ message_detail}}');
+{% endif %}
+
+{% endblock %}
+
+{% block html_body %} 
+<div class="container">
+  <center><h2>Amazonカテゴリー順序設定</h2></center>
+
+  <button type="button"onclick="location.href='{% url 'settings_amazon:category_parent'  %}'">大カテゴリー設定</button>
+  <button type="button"onclick="location.href='{% url 'settings_amazon:category_child'   %}'">詳細カテゴリー設定</button>
+</div>
+<!-- JavaScripts -->
+
+<script type="text/javascript" src="{% static 'js/ListBoxMove.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/AmazonCategory.js' %}"></script>
+
+{% endblock %}
+

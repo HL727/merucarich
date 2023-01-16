@@ -1,0 +1,49 @@
+<h1 id="admintools-の使い方">AdminTools の使い方</h1>
+<p>ここでは Merucarich で利用される AdminTools の利用方法を説明する。</p>
+<h2 id="ページの表示方法">ページの表示方法</h2>
+<p>Adminユーザー (/admin/ 以下にログインしてデータベースの操作ができるユーザー) のみが操作できる。 Adminユーザーで 通常のログインを行うと、AdminTools ページに移動する。</p>
+<div class="figure">
+<img src="images/01.png" />
+
+</div>
+<p>AdminTools ページから必要な項目を選んでツールを利用する。</p>
+<div class="figure">
+<img src="images/02.png" />
+
+</div>
+<h2 id="ip-status-checker">IP Status Checker</h2>
+<p>特定IPを利用した場合、Amazon, Yahoo, Mercari にブロックされているか否かをチェックするツール。 ブロックされているか否かの判断にはスクレイパー（外部のページを取得するロジック）に組み込みのものを利用する。</p>
+<div class="figure">
+<img src="images/03.png" />
+
+</div>
+<p>実際の利用方法は以下の通り。</p>
+<ol style="list-style-type: decimal">
+<li>チェックしたいIPを持つユーザーの行を選ぶ</li>
+</ol>
+<ul>
+<li>設定済IPアドレスでユーザーに設定されているIPアドレスが確認できる</li>
+<li>ユーザーにIPアドレスが設定されていない場合、設定済IPアドレスが server と表示される</li>
+<li>一番上の行はユーザーではなく、サーバーから直接チェックする (ユーザーにIPアドレスを設定していない場合と同じ)</li>
+<li>複数のIPアドレスを１ユーザーに設定している場合、IPアドレスの数だけ行が現れる</li>
+</ul>
+<ol start="2" style="list-style-type: decimal">
+<li>該当IPからのアクセスに異常がないかをチェックする場合は「該当サービス」の「Check」ボタンを押す</li>
+</ol>
+<ul>
+<li>例えばAmazonへのアクセスでCAPTCHAが発生しているか否かをチェックする場合、Amazon列のCheckボタンを押す</li>
+<li>どのサービスもアイテムの検索画面を利用しているので、対象アイテムを変えてチェックしたい場合は 一番上のチェック用URLの入力を別のものにする</li>
+<li>ボタンを押すと「確認中...」という表示になる</li>
+</ul>
+<ol start="3" style="list-style-type: decimal">
+<li>問題がない場合は「接続成功」、失敗した場合は「接続失敗」が表示される</li>
+<li>実際にどのようなページが表示されているかを確認したい場合は、特定IPアドレス行の「Download Source」ボタンを押す</li>
+<li>新しいタブに実際にどのような結果が得られたかが表示される</li>
+</ol>
+<ul>
+<li>例えばブロックされている場合などは、この中に「アクセス過多」などのメッセージが表示されるのでここを確認する</li>
+</ul>
+<div class="figure">
+<img src="images/04.png" />
+
+</div>

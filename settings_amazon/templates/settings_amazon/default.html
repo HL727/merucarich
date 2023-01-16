@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% load widget_tweaks %}
+
+{% block title %} Amazonデフォルト設定{% endblock %}
+
+{% block script_onload %}
+
+Utils.selectAmazonSetting();
+{% if message %}
+Utils.dialog('{{ message }}', '{{ message_detail}}');
+{% endif %}
+
+{% endblock %}
+
+{% block html_body %} 
+<div class="container">
+  <center><h2>Amazonデフォルト設定</h2></center>
+
+  <form class="form-horizontal" action="{% url 'settings_amazon:default'  %}" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      {{ form.condition_type.label_tag }}<br>
+      {{ form.condition_type | add_class:"form-control" }}<br>
+    </div>
+    <div class="form-group">
+      {{ form.condition_note.label_tag }}<br>
+      {{ form.condition_note | add_class:"form-control" }}<br>
+    </div>
+    <div class="form-group">
+      {{ form.part_number.label_tag }}<br>
+      {{ form.part_number | add_class:"form-control" }}<br>
+    </div>
+    <div class="form-group">
+      {{ form.fulfillment_latency.label_tag }}<br>
+      {{ form.fulfillment_latency | add_class:"form-control" }}<br>
+    </div>
+    <div class="form-group">
+      {{ form.standard_price_points.label_tag }}<br>
+      {{ form.standard_price_points | add_class:"form-control" }}<br>
+    </div>
+    <div class="form-group">
+      {{ form.new_item_points.label_tag }}<small>&nbsp;※入力がない場合、ポイント(デフォルト値)が利用されます。</small><br>
+      {{ form.new_item_points | add_class:"form-control" }}<br>
+    </div>
+    <div class="form-group">
+      {{ form.ride_item_points.label_tag }}<small>&nbsp;※入力がない場合、ポイント(デフォルト値)が利用されます。</small><br>
+      {{ form.ride_item_points | add_class:"form-control" }}<br>
+    </div>
+    <div class="form-group">
+      {{ form.new_auto_item_points.label_tag }}<small>&nbsp;※入力がない場合、ポイント(デフォルト値)が利用されます。</small><br>
+      {{ form.new_auto_item_points | add_class:"form-control" }}<br>
+    </div>
+    <input type="submit" value="登録" />
+  </form>
+</div>
+
+{% endblock %}
+
+
+

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% load widget_tweaks %}
+
+{% block title %}メルカリッチくん{% endblock %}
+
+
+{% block script_onload %}
+
+Utils.selectYahoo();
+{% if message %}
+Utils.dialog('{{ message }}', '{{ message_detail}}');
+{% endif %}
+
+{% endblock %}
+
+{% block html_body %} 
+
+<center>
+  <h1>TODO</h1>
+</center>
+
+{% endblock %}

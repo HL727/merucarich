@@ -1,0 +1,39 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="ja" >
+<head>
+  <title>ログイン</title>
+  <link rel="stylesheet" type="text/css" href="/static/admin/css/base.css">
+  <link rel="stylesheet" type="text/css" href="/static/admin/css/login.css">
+  <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="/static/admin/css/responsive.css">
+  <meta name="robots" content="NONE,NOARCHIVE">
+  <link rel="shortcut icon" href="/static/favicon.ico?v=1">
+</head>
+
+<body class=" login"
+  data-admin-utc-offset="32400">
+  <!-- Container -->
+  <div id="container">
+    <!-- Header -->
+    <div id="header">
+      <div id="branding">
+	<h1 id="site-name"><a href="#">メルカリッチくん</a></h1>
+        </div>       
+    </div>
+    <!-- END Header -->
+    <!-- Content -->
+    <div id="content" class="colM">
+      <div id="content-main">
+	{% block content %}{% endblock %}
+      </div>  
+      <br class="clear">
+    </div>
+    <!-- END Content -->
+    <div id="footer"></div>
+  </div>
+  <!-- END Container -->
+</div>
+</body>
+</html>

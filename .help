@@ -1,0 +1,34 @@
+accounts_ipaddress                 auth_group_permissions           
+accounts_user                      auth_permission                  
+accounts_user_groups               django_admin_log                 
+accounts_user_user_permissions     django_content_type              
+amazon_api                         django_migrations                
+amazon_brand                       django_session                   
+amazon_csv_format                  mercari_exclude_seller           
+amazon_default_settings            mercari_import_csv_result        
+amazon_exclude_asin                mercari_to_amazon_csv            
+amazon_feed_price_settings         mercari_to_amazon_item           
+amazon_hobbies_category            offer_reserch_watcher            
+amazon_hobbies_category_user       stop_request                     
+amazon_parent_category             yahoo_exclude_seller             
+amazon_parent_category_user        yahoo_import_csv_result          
+amazon_pet_supplies_category       yahoo_to_amazon_csv              
+amazon_pet_supplies_category_user  yahoo_to_amazon_item             
+auth_group                       
+accounts_ipaddress                 auth_group_permissions           
+accounts_user                      auth_permission                  
+accounts_user_groups               django_admin_log                 
+accounts_user_user_permissions     django_content_type              
+amazon_api                         django_migrations                
+amazon_brand                       django_session                   
+amazon_csv_format                  mercari_exclude_seller           
+amazon_default_settings            mercari_import_csv_result        
+amazon_exclude_asin                mercari_to_amazon_csv            
+amazon_feed_price_settings         mercari_to_amazon_item           
+amazon_hobbies_category            offer_reserch_watcher            
+amazon_hobbies_category_user       stop_request                     
+amazon_parent_category             yahoo_exclude_seller             
+amazon_parent_category_user        yahoo_import_csv_result          
+amazon_pet_supplies_category       yahoo_to_amazon_csv              
+amazon_pet_supplies_category_user  yahoo_to_amazon_item             
+auth_group                       

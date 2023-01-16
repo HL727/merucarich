@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="NONE,NOARCHIVE">
+    <title>{% block title %}My amazing site{% endblock %}</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.blockUI/2.70.0-2014.11.23/jquery.blockUI.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script type="text/javascript" src="{% static 'js/Utils.js' %}?v=1"></script>
+    <link rel="stylesheet" href="{% static 'css/richs.css' %}">
+    <link rel="shortcut icon" href="/static/favicon.ico?v=1">
+
+
+    <style>
+      .dropdown:hover > .dropdown-menu{
+      display: block;
+      }
+      body {
+      padding-top: 70px; 
+      }
+    </style>
+    <style type="text/css">
+    {% block css %} {% endblock %}
+    </style>
+  </head>
+
+
+<body>
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbarEexample">
+          <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/home">HOME</a>
+      </div>
+      <div class="nav navbar-right">
+        <a href="/accounts/logout">
+          <button type="button" class="btn btn-default navbar-btn navbar-right" style="margin-right: 10px;">
+             ログアウト
+          </button>
+        </a>
+      </div>
+    </div>
+  </nav>
+  
+  {% block html_body %} {% endblock %}
+  <script type="text/javascript">
+  {% block javascript %} {% endblock %}
+  </script>
+</body>
+</html>
+

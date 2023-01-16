@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% load widget_tweaks %}
+
+{% block title %}メルカリッチくん{% endblock %}
+
+
+{% block script_onload %}
+
+Utils.selectMercari();
+{% if message %}
+Utils.dialog('{{ message }}', '{{ message_detail}}');
+{% endif %}
+
+{% endblock %}
+
+{% block html_body %} 
+<div class="container" style="width: 100%">
+  <center><h2>ヤフオクリサーチ出品レポート取り込み</h2></center>
+  <br>
+  <div class="panel panel-default">
+    <div class="panel-heading" style="text-align:left">ヤフオクリサーチ出品レポート取り込み</div>
+    <div class="panel-body" style="text-align:left;">
+      <br>
+      推奨ブラウザ：Google Chrome<br>
+      Google Chrome以外のブラウザを使用してアップロードした場合、正しくアップロードできない可能性があります。<br>
+      操作手順補足<br>
+      （１）AMAZONセラーセントラルより出品レポートを取得してください。<br>
+      （２）必要に応じて取得した出品レポートより不要行を削除してください。<br>
+      （３）出品レポートを下記より取り込んで下さい。<br>
+      尚、出品レポートに記載しているSKU＝YahooオークションIDと認識して処理を実行します。<br>
+      操作時の注意点<br>
+      （１）SKUより対象のYahooオークション情報を取得します。<br>
+      その為、件数が多い場合取り込みに時間がかかることがありますのでご注意ください<br>
+      <br>
+      <br>
+      <form class="form-horizontal" action="{% url 'mercari:import_item'  %}" method="post" enctype="multipart/form-data" name="form" id="form" >    
+	{% csrf_token %}
+	{% if runging %}
+	<span style="color:red">現在CSVデータを取り込み中です。しばらく、お待ちください。</span>
+	<br>
+	{% elif done %}
+	<span style="color:red">取り込みが完了しました。取り込み結果を確認してください。</span>
+	<br>
+	<input type="submit" name="clear" value="取り込み結果をクリア">
+	<br>
+	{% else  %}
+	<label for="import_file" class="feed-form-file-select-label" style="display:block; floet:left; width:200px; margin:10px">
+	  ＋アップロード<input type="file" id="import_file" name="import_file" style="display:none;" accept="text/plain">
+	</label>
+	{% endif  %}
+	<br>
+	取り込み結果:<br>
+	<div class="form-group">
+	  <textarea id="result" rows="10" style="width: 100%">{{ progress_messages }}</textarea>
+	</div>
+      </form>
+    </div>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading" style="text-align:left">AMAZON出品レポートの取り込み履歴</div>
+    <div class="panel-body" style="text-align:left;">
+      <table width="100%" border="1" style="table-layout:fixed; border-color:silver" >
+	<tr>
+	  <th width="10%" style="background-color:whitesmoke">No</th>
+	  <th width="15%" style="background-color:whitesmoke">登録時間</th>
+	  <th width="15%" style="background-color:whitesmoke">完了時間</th>
+	  <th width="15%" style="background-color:whitesmoke">ステータス</th>
+	  <th width="45%" style="background-color:whitesmoke">結果</th>
+	</tr>
+
+	{% for result in result_list %}
+	<tr>
+	  <td width="10%">{{ result.local_id }}</td>
+	  <td width="15%">{{ result.start_date }}</td>
+	  <td width="15%">{% if result.end_date == None %}{% else %}{{ result.end_date }}{% endif %}</td>
+	  <td width="15%">{% if result.status == 0 %}完了{% elif result.status == 5 %}完了{% else %}処理中{% endif %}</td>
+	  <td width="45%"><textarea id="result" rows="5" style="width: 100%">{{ result.result_message }}</textarea></td>
+	</tr>
+	{% endfor %}
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  $(function(){
+  $("#import_file").on("change", function(){
+  $('#form').submit();
+  });
+  {% if runging %}
+  setTimeout(function(){
+  location.href = '{% url 'mercari:import_item'  %}'
+  },5000);
+  {% endif  %}
+  });
+</script>
+{% endblock %}

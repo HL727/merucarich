@@ -1,0 +1,265 @@
+{% extends 'base.html' %}
+
+{% load widget_tweaks %}
+
+{% block title %}メルカリッチくん{% endblock %}
+
+
+{% block script_onload %}
+
+Utils.selectMercari();
+{% if message %}
+Utils.dialog('{{ message }}', '{{ message_detail}}');
+{% endif %}
+
+$(function () {
+　$("#main_image_file").change(function () {
+　　$("#id_main_image_url").val($(this).val());
+　});
+
+　$("#other_image_file1").change(function () {
+　　$("#id_other_image_url1").val($(this).val());
+　});
+
+　$("#other_image_file2").change(function () {
+　　$("#id_other_image_url2").val($(this).val());
+　});
+
+　$("#other_image_file3").change(function () {
+　　$("#id_other_image_url3").val($(this).val());
+　});
+
+  $("#id_category").change(function () {
+    setSelect('#id_recommended_browse_nodes', '/api/amazon_child_category_user/?format=json&category=' + $(this).val());
+  });
+
+　$("#id_manufacturer").change(function () {
+    $("#id_brand_name").val($(this).val());
+　});
+　$("#id_brand_name").val($("#id_manufacturer").val());
+
+
+});
+
+  function setSelect(dom_id, url) {
+    var dropdown = $(dom_id);
+    dropdown.empty();
+    $.getJSON(url, function (data) {
+        $.each(data, function (key, entry) {
+            dropdown.append($('<option></option>').attr('value', entry.value).attr('id', entry.value).text(entry.name));
+	})
+    });
+  }
+
+
+
+{% endblock %}
+
+{% block html_body %} 
+
+<center><h2>新規出品</h2></center>
+<br>
+<form  action="{% url 'mercari:feed_amazon_new' %}" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <center>
+    <table width="90%" border=1 style="table-layout: fixed;">
+      <tr>
+	<td width="15%">SKU</td>
+	<td colspan="7" width="85%">{{ form.item_sku | add_class:"feed-form-input" | attr:"readonly:readonly" }}</td>
+      </tr>
+      <tr>
+	<td width="15%">コード</td>
+	<td colspan="3" width="25%">{{ form.external_product_id_type | add_class:"feed-form-input" }}</td>
+	<td colspan="4" width="60%">{{ form.external_product_id | add_class:"feed-form-input" }}</td>
+      </tr>    
+      <tr>
+	<td width="15%">商品名</td>
+	<td colspan="7" width="85%">{{ form.item_name | add_class:"feed-form-input" }}</td>
+      </tr>
+      <tr>
+	<td width="15%">メーカ名</td>
+	<td colspan="7" width="85%">{{ form.manufacturer | add_class:"feed-form-input" }}</td>
+      </tr>
+      <tr>
+	<td width="15%">ブランド名</td>
+	<td colspan="7" width="85%">{{ form.brand_name | add_class:"feed-form-input" }}</td>
+      </tr>
+      <tr>
+	<td width="15%">メーカ型番</td>
+	<td colspan="7" width="85%">{{ form.part_number | add_class:"feed-form-input" }}</td>
+      </tr>
+      <tr>
+	<td width="15%">コンデション</td>
+	<td colspan="7" width="85%">{{ form.condition_type | add_class:"feed-form-input" }}</td>
+      </tr>
+      <tr>
+	<td width="15%">コンデションの説明</td>
+	<td colspan="7" width="85%">{{ form.condition_note | add_class:"feed-form-input" }}</td>
+      </tr>
+      <tr>
+	<td width="15%">商品の説明</td>
+	<td colspan="7" width="85%">{{ form.product_description | add_class:"feed-form-input" }}</td>
+      </tr>
+      <tr>
+	<td width="15%">商品の仕様</td>
+	<td colspan="7" width="85%">{{ form.bullet_point | add_class:"feed-form-input" }}</td>
+      </tr>              
+      <tr>
+	<td width="15%">検索キーワード１</td>
+	<td colspan="7" width="85%">{{ form.generic_keywords | add_class:"feed-form-input" }}</td>
+      </tr>    
+      <tr>
+	<td width="15%">カテゴリ（大分類）</td>
+	<td colspan="7" width="85%">{{ form.category | add_class:"feed-form-input" }}</td>
+      </tr>
+      <tr>
+	<td width="15%">カテゴリ（詳細）</td>
+	<td colspan="7" width="85%">{{ form.recommended_browse_nodes | add_class:"feed-form-input" }}</td>
+      </tr>
+
+      {% if images %}
+      <tr>
+	<td width="15%">
+	  {% if images.0 %}
+	  <img src="{{ images.0 }}" id="img0" width="100%" />
+	  {% endif %}
+	</td>
+	<td width="10%">
+	  {% if images.0 %}
+	  <center>
+	    <button type="button" class="feed-form-img-select-button" onClick="copy_image_path('#img0', '#id_main_image_url');">メイン</button><br>
+	    <button type="button" class="feed-form-img-select-button" onClick="copy_image_path('#img0', '#id_other_image_url1');">その他1</button><br>
+	    <button type="button" class="feed-form-img-select-button" onClick="copy_image_path('#img0', '#id_other_image_url2');">その他2</button><br>
+	    <button type="button" class="feed-form-img-select-button" onClick="copy_image_path('#img0', '#id_other_image_url3');">その他3</button>
+	  </center>
+	  {% endif %}
+	</td>
+	
+	<td width="15%">
+	  {% if images.1 %}
+	  <img src="{{ images.1 }}" id="img1" width="100%" />
+	  {% endif %}
+	</td>
+	<td width="10%">
+	  {% if images.1 %}
+	  <center>
+	    <button type="button" class="feed-form-img-select-button" onClick="copy_image_path('#img1', '#id_main_image_url');">メイン</button><br>
+	    <button type="button" class="feed-form-img-select-button" onClick="copy_image_path('#img1', '#id_other_image_url1');">その他1</button><br>
+	    <button type="button" class="feed-form-img-select-button" onClick="copy_image_path('#img1', '#id_other_image_url2');">その他2</button><br>
+	    <button type="button" class="feed-form-img-select-button" onClick="copy_image_path('#img1', '#id_other_image_url3');">その他3</button>
+	  </center>
+	  {% endif %}
+	</td>
+
+	<td width="15%">
+	  {% if images.2 %}
+	  <img src="{{ images.2 }}" id="img2" width="100%" />
+	  {% endif %}
+	</td>
+	<td width="10%">
+	  {% if images.2 %}
+	  <center>
+	    <button type="button" class="feed-form-img-select-button" onClick="copy_image_path('#img2', '#id_main_image_url');">メイン</button><br>
+	    <button type="button" class="feed-form-img-select-button" onClick="copy_image_path('#img2', '#id_other_image_url1');">その他1</button><br>
+	    <button type="button" class="feed-form-img-select-button" onClick="copy_image_path('#img2', '#id_other_image_url2');">その他2</button><br>
+	    <button type="button" class="feed-form-img-select-button" onClick="copy_image_path('#img2', '#id_other_image_url3');">その他3</button>
+	  </center>
+	  {% endif %}
+	</td>
+
+	<td width="15%">
+	  {% if images.3 %}
+	  <img src="{{ images.3 }}" id="img3" width="100%" />
+	  {% endif %}
+	</td>
+	<td width="10%">
+	  {% if images.3 %}
+	  <center>
+	    <button type="button" class="feed-form-img-select-button" onClick="copy_image_path('#img3', '#id_main_image_url');">メイン</button><br>
+	    <button type="button" class="feed-form-img-select-button" onClick="copy_image_path('#img3', '#id_other_image_url1');">その他1</button><br>
+	    <button type="button" class="feed-form-img-select-button" onClick="copy_image_path('#img3', '#id_other_image_url2');">その他2</button><br>
+	    <button type="button" class="feed-form-img-select-button" onClick="copy_image_path('#img3', '#id_other_image_url3');">その他3</button>
+	  </center>
+	  {% endif %}
+	</td>
+      </tr>
+      {% endif %}
+
+      <tr>
+	<td width="15%">商品画像(メイン)</td>
+	<td colspan="6" width="75%">{{ form.main_image_url | add_class:"feed-form-input"}}</td>
+	<td width="10%">
+	  <label for="main_image_file" class="feed-form-file-select-label">
+	    ＋写真を選択<input type="file" id="main_image_file" name="main_image_file" style="display:none;" accept="image/jpeg">
+	  </label>
+	</td>
+      </tr>
+      <tr>
+	<td width="15%">商品画像(その他1)</td>
+	<td colspan="6" width="75%">{{ form.other_image_url1 | add_class:"feed-form-input" }}</td>
+	<td width="10%">
+	  <label for="other_image_file1" class="feed-form-file-select-label">
+	    ＋写真を選択<input type="file" id="other_image_file1" name="other_image_file1"  style="display:none;" accept="image/jpeg">
+	  </label>
+	</td>	
+      </tr>
+      <tr>
+	<td width="15%">商品画像(その他2)</td>
+	<td colspan="6" width="75%">{{ form.other_image_url2 | add_class:"feed-form-input" }}</td>
+	<td width="10%" valign="middle">
+	  <label for="other_image_file2" class="feed-form-file-select-label">
+	    ＋写真を選択<input type="file" id="other_image_file2" name="other_image_file2" style="display:none;" accept="image/jpeg">
+	  </label>
+	</td>	
+      </tr>
+      <tr>
+	<td width="15%">商品画像(その他3)</td>
+	<td colspan="6" width="75%">{{ form.other_image_url3 | add_class:"feed-form-input" }}</td>
+	<td width="10%">
+	  <label for="other_image_file3" class="feed-form-file-select-label">
+	    ＋写真を選択<input type="file" id="other_image_file3" name="other_image_file3" style="display:none;" accept="image/jpeg">
+	  </label>
+	</td>	
+      </tr>
+      <tr>
+	<td width="15%">販売価格</td>
+	<td colspan="7" width="85%">{{ form.standard_price | add_class:"feed-form-input" }}</td>
+      </tr>
+      <tr>
+	<td width="15%">ポイント</td>
+	<td colspan="7" width="85%">{{ form.standard_price_points | add_class:"feed-form-input" }}</td>
+      </tr>
+      <tr>
+	<td width="15%">在庫数</td>
+	<td colspan="7" width="85%">{{ form.quantity  | add_class:"feed-form-input" }}</td>
+      </tr>
+      <tr>
+	<td width="15%">リードタイム（日）</td>
+	<td colspan="7" width="85%">{{ form.fulfillment_latency  | add_class:"feed-form-input" }}</td>
+      </tr>
+      <tr>
+	<td colspan="8" width="100%">
+	  {{ form.purchaseo_seller_id }}
+	  {{ form.purchaseo_seller_id_name }}
+	  {{ form.current_price }}
+	  <input type="submit" value="登録">
+	</td>
+      </tr>
+    </table>
+  </center>
+
+</form>
+
+<script>
+
+  function copy_image_path(from, to) {
+     $(to).val($(from).attr('src'));
+  }
+  
+</script>
+
+<br>
+<br>
+<br>
+
+{% endblock %}

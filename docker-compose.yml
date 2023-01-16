@@ -1,0 +1,31 @@
+version: "3"
+services: 
+    mariadb:
+        image: mariadb:10.1.40
+        ports:
+            - "3306:3306"
+        volumes:
+            - ./mariadb/conf.d/my.cnf:/etc/mysql/my.cnf
+            - ./mariadb/init:/docker-entrypoint-initdb.d
+            # enable it if you want permanent database
+            # - ./mariadb/mount:/var/lib/mysql
+        environment:
+            - MYSQL_ROOT_PASSWORD=rootroot
+    redis:
+        image: redis:latest
+        hostname: redis
+        ports:
+            - "6379:6379"
+# enable it if you want permanent redis data
+#        volumes:
+#            - ./redis/data:/data
+#
+#    redis-commander:
+#        hostname: redis-commander
+#        image: rediscommander/redis-commander:latest
+#        environment:
+#            - REDIS_HOSTS=local:redis:6379
+#        ports:
+#            - "8081:8081"
+#
+

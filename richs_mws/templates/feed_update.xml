@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AmazonEnvelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="amzn-envelope.xsd">
+  <Header>
+    <DocumentVersion>1.01</DocumentVersion>
+    <MerchantIdentifier>{{ MerchantId }}</MerchantIdentifier>
+  </Header>
+
+  <MessageType>Inventory</MessageType>
+  {% for message in FeedMessages %}
+  <Message>
+    <MessageID>{{ loop.index }}</MessageID>
+    <OperationType>Update</OperationType>
+    <Inventory><SKU>{{ message.item_sku }}</SKU>
+    <Quantity>{{ message.current_purchase_quantity }}</Quantity>
+    <FulfillmentLatency>{{ message.current_purchase_fulfillment_latency }}</FulfillmentLatency>
+    </Inventory>
+  </Message>
+  {% endfor %}
+
+</AmazonEnvelope>

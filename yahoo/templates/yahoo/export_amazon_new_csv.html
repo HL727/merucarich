@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% load widget_tweaks %}
+
+{% block title %} メルカリッチくん{% endblock %}
+
+
+{% block script_onload %}
+
+Utils.selectYahoo();
+{% if message %}
+Utils.dialog('{{ message }}', '{{ message_detail}}');
+{% endif %}
+
+{% endblock %}
+
+{% block html_body %} 
+
+<center><h2>AMAZON新規出品用CSV出力</h2></center>
+
+<form class="form-horizontal" action="{% url 'yahoo:export_amazon_new_csv'  %}" method="post">
+  {% csrf_token %}
+  <table width="100%">
+    <tr>
+      <td align="left">
+	<button type="button" onclick="$('.taget_check').prop('checked', true);">全て選択</button>
+	<button type="button" onclick="$('.taget_check').prop('checked', false);">全て選択解除</button>
+	<label>件数: </label><input type="text" id="select-count" value="" style="width: 80px;"></input>
+	<input id="csv-button" type="submit" onclick="checkInput()" name="csv" value="選択した商品をCSV出力">
+	<input type="submit" onclick="return check('全ての商品を出力します。 よろしいですか？');" name="output_all" value="全ての商品をCSV出力">
+      </td>
+      <td align="right"><input id="del-button" type="submit" onclick="checkInput()" name="delete" value="選択した商品を削除"> </td>
+    <tr>
+  </table>
+  <br>
+  <table width="100%" border="1" style="table-layout: fixed;">
+
+    <tr width="100%">
+      <th rowspan="2" width="5%"  class="th" style="background-color:silver">No</th>
+      <th rowspan="2" width="5%"  class="th" style="background-color:silver">選択</th>
+      <th rowspan="2" width="15%" class="th" style="background-color:silver">商品画像</th>
+      <th rowspan="2" width="200px"  class="th" style="background-color:silver">SKU</th>
+      <th rowspan="2" width="200px"  class="th" style="background-color:silver">出品者</th>
+      <th rowspan="2" width="10%"  class="th" style="background-color:silver">仕入れ価格</th>
+      <th rowspan="2" width="10%"  class="th" style="background-color:silver">販売価格</th>
+      <th rowspan="2" width="5%"  class="th" style="background-color:silver">ポイント</th>
+      <th rowspan="2" width="10%" class="th" style="background-color:silver">コンディション</th>
+      <th rowspan="2" width="5%"  class="th" style="background-color:silver">リード<br>タイム</th>
+      <th rowspan="2" width="5%"  class="th" style="background-color:silver">編集</th>
+      <th rowspan="1" width="30%" class="th" style="background-color:silver">商品名</th>
+    </tr>
+    <tr width="100%">
+      <th width="30%" class="th" style="background-color:silver">コンディション説明</th>
+    </tr>
+    {% for item in items %}
+    <tr width="100%">
+      <td rowspan="2" width="5%"  class="td" >{{ item.local_id }}</td>
+      <td rowspan="2" width="5%"  class="td" ><a href="https://www.amazon.co.jp/dp/{{item.external_product_id}}" target="_blank"><input type="checkbox" name="ids" value="{{ item.id }}" class='taget_check'></a></td>
+      <td rowspan="2" width="15%" class="td" ><img src="{{url_item}}/{{item.main_image_url}}" width="100%"></td>
+      <td rowspan="2" width="200px"  class="td" ><a href="https://page.auctions.yahoo.co.jp/jp/auction/{{item.item_sku}}" target="_blank">{{ item.item_sku }}</a></td>
+      <td rowspan="2" width="200px"  class="td" ><a href="https://auctions.yahoo.co.jp/seller/{{ item.current_purchase_seller_id }}" target="_blank">{{ item.current_purchase_seller_id }}</a></td>
+      <td rowspan="2" width="10%"  class="td" >{{ item.current_purchase_price }}円</td>
+      <td rowspan="2" width="10%"  class="td" >{{ item.standard_price }}円</td>
+      <td rowspan="2" width="5%"  class="td" >{{ item.standard_price_points }}</td>
+      <td rowspan="2" width="10%" class="td" >{{ item.condition_type }}<br>{{item.condition_note}}</td>
+      <td rowspan="2" width="5%"  class="td" >{{ item.fulfillment_latency }}</td>
+      <td rowspan="2" width="5%"  class="td" ><button type="button" value="{{item.auction_id }}" onclick="window.open('{% url 'yahoo:edit_amazon_new' %}?item_sku={{ item.item_sku }}');">編集</button></td>
+      <td rowspan="1" width="30%" class="td" >{{ item.item_name }}</td>
+    </tr>
+    <tr width="100%">
+      <td width="30%" class="td" >{{ item.condition_note }}</td>
+    </tr>
+    {% endfor %}
+    
+  </table>
+</form>
+
+<script type="text/javascript">
+  function check(msg){
+    if (window.confirm(msg)) {
+      return true;
+    } else {
+      window.alert('キャンセルしました。');
+      return false;
+    }
+  }
+
+  $('#select-count').change(function() {
+    var count = $('#select-count').val();
+    if (count && Number(count) > 0) {
+      // 件数入力あり
+      $('#csv-button').val('入力件数の商品をCSV出力');
+      $('#del-button').val('入力件数の商品を削除');
+    } else {
+      // 件数入力なし
+      $('#csv-button').val('選択した商品をCSV出力');
+      $('#del-button').val('選択した商品を削除');
+    }
+  }).on('keyup keypress', function(e) {
+    // enterキー入力を無効 (どれが submit されるか不明のため)
+    var keyCode = e.keyCode || e.which;
+    if (keyCode === 13) { 
+      e.preventDefault();
+      return false;
+    }
+  });
+
+  function checkInput() {
+    var count = $('#select-count').val();
+    if (count && Number(count) > 0) {
+      // 件数入力あり
+      var checks = Number(count);
+      $('.taget_check').each(function(index, elem) {
+        $(elem).prop('checked', index < checks);
+      });
+    }
+    return true;
+  }
+
+</script>
+
+
+
+{% endblock %}
+
+
+
+

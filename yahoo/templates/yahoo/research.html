@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+
+{% load widget_tweaks %}
+
+{% block title %}メルカリッチくん{% endblock %}
+
+
+{% block script_onload %}
+
+Utils.selectYahoo();
+{% if message %}
+Utils.dialog('{{ message }}', '{{ message_detail}}');
+{% endif %}
+
+{% endblock %}
+
+{% block html_body %} 
+
+<center><h2>Yahooオークション商品リサーチ</h2>
+{% if messages %}
+  <ul class="list-group">
+    {% for message in messages %}
+      <li class="list-group-item list-group-item-danger">{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+  <form action="{% url 'yahoo:research' %}" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <div class="panel panel-default" style="width:90%">
+	<div class="panel-heading" style="text-align:left">ヤフオク検索指定条件</div>
+	<div class="panel-body" style="text-align: left;">
+	  <table width="90%">
+	    <tr>
+	    <tr>
+	      <td width="10%">
+		{{ form.search_type.label_tag }}
+	      </td>
+	      <td width="90%">
+		{{ form.search_type }}
+	      </td>
+	    </tr>
+	    <tr>
+	      <td width="10%">
+		{{ form.va.label_tag }}
+	      </td>
+	      <td width="90%">
+		{{ form.va | add_class:"form-control" }}
+	      </td>
+	    </tr>
+	    <tr id="order">
+	      <td width="10%">
+		{{ form.select.label_tag　}}
+	      </td>
+	      <td width="90%">
+		{{ form.select }}
+	      </td>
+	    </tr>
+	    <tr id="ops1">
+	      <td width="10%">
+		{{form.is_exist_bidorbuy_price.label_tag}}
+	      </td>
+	      <td width="90%">
+		{{form.is_exist_bidorbuy_price}}
+	      </td>
+	    </tr>
+	    <tr id="ops2">
+	      <td width="10%">
+		{{ form.aucminprice.label_tag }}
+	      </td>
+	      <td width="90%">
+		{{ form.aucminprice }}〜{{ form.aucmaxprice }}
+	      </td>
+	    </tr>
+	    <tr id="ops3">
+	      <td width="10%">
+		{{ form.aucmin_bidorbuy_price.label_tag　}}
+	      </td>
+	      <td width="90%">
+		{{ form.aucmin_bidorbuy_price }}〜{{ form.aucmax_bidorbuy_price }}
+	      </td>
+	    </tr>
+	    <tr id="ops4">
+	      <td width="10%">
+		{{ form.istatus.label_tag }}
+	      </td>
+	      <td width="90%">
+		{{ form.istatus }}
+	      </td>
+	    </tr>
+	    <tr id="ops5">
+	      <td width="10%">
+		{{ form.abatch.label_tag }}
+	      </td>
+	      <td width="90%">
+		{{ form.abatch }}
+	      </td>
+	    </tr>
+	    <tr id="ops6">
+	      <td width="10%">
+		{{ form.thumb.label_tag }}
+	      </td>
+	      <td width="90%">
+		{{ form.thumb }}
+	      </td>
+	    </tr>
+	    <tr>
+	      <td width="10%">
+		<input type="submit" name="search" id="submit" value="検索">    
+	      </td>
+	      <td width="90%" style="text-align:right">
+		<button type="button" id="ops_btn" onclick="options();">オプション</button>
+	      </td>
+	    </tr>
+	  </table>
+	</div>
+      </div>
+      {% if page %}
+      <br>
+      <br>
+      <input type="hidden" name="page" value="{{ page }}">
+      <table width="450px" style="table-layout: fixed;">
+	<tr>
+	  <td width="150px">
+	    {% if prev_page_url %}
+	    <input type="hidden" name="prev_page_url" value="{{ prev_page_url }}">
+	    <input type="submit" name='prev' id="submit" value="前のページへ">    
+	    {% endif %}
+	  </td>
+	  <td width="150px">
+	    &emsp;{{page}}ページ目&emsp;
+	  </td>      
+	  <td width="150px">
+	    {% if next_page_url %}
+	    <input type="hidden" name="next_page_url" value="{{ next_page_url }}">
+	    <input type="submit" name="next" value="次のページへ">    
+	    {% endif %} 
+	  </td>
+	</tr>
+      </table>  
+      <br>
+      <table  width="90%"  border=1 style="table-layout: fixed;">
+	<tr>
+	  <th rowspan="2" width="15%" style="background-color:silver">画像</th>
+	  <th colspan="3" width="75%" style="background-color:silver">商品タイトル</th>
+	  <th rowspan="2" width="10%" style="background-color:silver">出品</th>
+	</tr>
+	<tr>
+	  <th width="15%" style="background-color:silver">セラーID</th>
+	  <th width="15%" style="background-color:silver">評価</th>
+	  <th width="10%" style="background-color:silver">現在価格：即決価格</th>
+	</tr>
+
+	{% for item in items %}
+	<tr>
+	  <td rowspan="2" width="15%"><a href="{{ item.url }}" target="_blank"><img src="{{ item.images.0 }}" width="100%"/></a></td>
+	  <td colspan="3" width="75%">{{ item.title}}</td>
+	  <td rowspan="2" width="10%"><button type="button" value="{{item.auction_id }}" onclick="window.open('{% url 'yahoo:research_amazon_by_yahoo' %}?auction_id={{ item.auction_id }}&seller_id={{ item.seller }}&keyword={{ item.title | urlencode }}');">Amazon出品</button></td>
+	</tr>
+	<tr>
+	  <td width="25%"><a href="https://auctions.yahoo.co.jp/seller/{{ item.seller }}" target="_blank">{{ item.seller }}</a></td>
+	  <td width="25%"><a href="https://auctions.yahoo.co.jp/jp/show/rating?userID={{ item.seller }}" target="_blank">評価</a></td>
+	  <td width="25%">{{ item.current_price }}:{{ item.bid_or_buy }}</td>
+	</tr>
+	{% endfor %}
+      </table>
+      {% endif %}
+  </form>
+</center>
+
+<script>
+
+  function ops_show(val) {
+  if (val) {
+  $('#ops1').show();
+  $('#ops2').show();
+  $('#ops3').show();
+  $('#ops4').show();
+  $('#ops5').show();
+  $('#ops6').show();
+  } else {
+  $('#ops1').hide();
+  $('#ops2').hide();
+  $('#ops3').hide();
+  $('#ops4').hide();
+  $('#ops5').hide();
+  $('#ops6').hide();
+  }
+  }
+
+  function options() {
+  var val = $('#ops5').is(":visible");
+  ops_show(!val);
+  }
+
+  
+  $(function() {
+    var changeFn = function(val) {
+      if (val == 0) {
+        ops_show(true);
+        $('#ops_btn').show();
+        $('#order').show();
+      } else if (val == 1) {
+        ops_show(false);
+        $('#ops_btn').hide();
+        $('#order').show();
+      } else if (val == 2) {
+        ops_show(false);
+        $('#ops_btn').hide();
+        $('#order').hide();
+      }
+
+    };
+    $('#id_search_type').change(function() {
+      changeFn($(this).val());
+    });
+
+    // 遷移時にも動作させる
+    changeFn($('#id_search_type').val());
+  });
+
+</script>
+
+
+{% endblock %}
+
+
+
+

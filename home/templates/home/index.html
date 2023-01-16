@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}メルカリッチくん{% endblock %}
+
+{% block script_onload %} 
+$(".navbar-brand").addClass("active");
+{% endblock %}
+
+{% block html_body %} 
+<div class="container">
+  <center>
+    <br>
+    <img src="/static/img/logo2.png"><br>
+    {% if not token_validated %}
+    <span style="font-weight: bold; color: red;">
+      現在設定している Amazon API 設定のトークンが正常に働いてません。
+      Amazon API の確認・再設定を行ってください。
+    </span>
+    <br><br>
+    {% endif %}
+    ようこそ、{{ full_name }}さん。<br>
+    <br>
+
+<div class="panel panel-default" style="width:100%">
+      <div class="panel-heading" style="text-align: left;">アナウンス情報 *2019/8/23/更新</div>
+      <div class="panel-body" style="text-align: left;">
+     ＜メルカリ利用可能になりました。＞<br><br>
+     メルカリ仕様変更対応が完了しました。<br><br>
+     Amazon相乗りリサーチ機能（メルカリ）・新規出品（メルカリ）共に、利用可能です。<br><br>
+     この度はご迷惑をお掛けし、申し訳ございませんが、よろしくお願い致します。<br><br>
+   </div>
+    </div>
+
+    <div class="panel panel-default" style="width:100%">
+<div class="panel-heading" style="text-align: left;;">ツールマニュアル</div>
+      <div class="panel-body" style="text-align: left;">
+      
+  下記URLをブラウザに貼り付けてダウンロードをお願い致します。<br>
+        http://yuukiiida.xsrv.jp/merucarich/user_manual.pdf<br>
+
+    <!--div class="panel panel-default" style="width:100%">
+      <div class="panel-heading" style="text-align: left;">アナウンス情報 *2019/4/7更新</div>
+      <div class="panel-body" style="text-align: left;">	
+	Amazon相乗りリサーチ機能の修正が完了しましたので、<br>
+	4/7 21:00〜よりご利用頂けます。<br>
+	<br>
+	なお、収集が数秒で止まる事象が発生した場合は、<br>
+	すぐにサポートへご連絡をお願いします。<br>
+      </div>
+    </div>
+
+    <div class="panel panel-default" style="width:100%">
+      a<div class="panel-heading" style="text-align: left;">アナウンス情報 *2019/4/3更新</div>
+      <div class="panel-body" style="text-align: left;">	
+	現在、amazon側の仕様変更により、<br>
+	Amazon相乗りリサーチ機能が利用できない状況となっています。<br>
+	4/8（月）まで利用禁止とさせてください。<br>
+	※対応の進捗によっては、多少前後する可能性がございます。<br>
+      </div>
+    </div>
+
+    <div class="panel panel-default" style="width:100%">
+      <div class="panel-heading" style="text-align: left;">ツールマニュアル</div>
+      <div class="panel-body" style="text-align: left;"-->
+	
+      </div>
+    </div>
+
+  </center>
+</div>
+{% endblock %}

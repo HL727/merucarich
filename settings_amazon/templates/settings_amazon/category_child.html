@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %} Amazonカテゴリー順序設定{% endblock %}
+
+{% block script_onload %}
+
+Utils.selectAmazonSetting();
+{% if message %}
+Utils.dialog('{{ message }}', '{{ message_detail}}');
+{% endif %}
+
+AmazonCategory.setSelectedParentCategory();
+
+{% endblock %}
+
+{% block html_body %} 
+<div class="container">
+  <center><h2>Amazonカテゴリー順序設定</h2></center>
+
+
+  <button type="button"onclick="location.href='{% url 'settings_amazon:category_parent'  %}'">大カテゴリー設定</button>
+  <button type="button"onclick="location.href='{% url 'settings_amazon:category_child'   %}'">詳細カテゴリー設定</button>
+  <br>
+  <br>
+
+  <div class="form-group">
+    <select id="selected_parent_category" onChange="AmazonCategory.onChangeSelectedParentCategory();"></select>
+    <table>
+      <tr>
+	<td>
+	  <select id="selectable" multiple="multiple" class="form-control" size="15" style="width: 300px">
+	  </select>
+	</td>
+	<td style="padding-left:10px;padding-right:5px;">
+	  <button type="button" id="left-btn">&gt;&gt;</button>
+	  <br>
+	  <br>
+	  <button type="button" id="right-btn">&lt;&lt;</button>
+	</td>
+	<form class="form-horizontal" action="{% url 'settings_amazon:category_child' %}" method="post">
+	  <td>
+	    <select id="selected" name="selected" multiple="multiple" class="form-control selectpicker" size="15" style="width: 300px"> </select>
+	  </td>
+      </tr>
+    </table>
+    <br>
+    <input type="hidden" id="category" name="category" value="">
+    {% csrf_token %}
+    <input type="submit" id="submit"  value="登録" onclick="AmazonCategory.selectAllSelectedCategory();">
+    </form>
+  </div>
+</div>
+<!-- JavaScripts -->
+
+<script type="text/javascript" src="{% static 'js/ListBoxMove.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/AmazonCategory.js' %}"></script>
+
+{% endblock %}
+

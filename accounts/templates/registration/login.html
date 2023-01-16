@@ -1,0 +1,37 @@
+{% extends "auth_base.html" %}
+
+{% block content %}
+
+{% if form.errors %}
+<p class="errornote">正しいユーザー名とパスワードを入力してください。どちらのフィールドも大文字と小文字は区別されます。</p>
+{% endif %}
+
+{% if next %}
+    {% if user.is_authenticated %}
+    <p>Your account doesn't have access to this page. To proceed,
+    please login with an account that has access.</p>
+    {% else %}
+    <p class="errornote">このページを見るには、ログインしてください。</p>
+    {% endif %}
+{% endif %}
+
+<form method="post" action="{% url 'login' %}">
+  {% csrf_token %}
+    <div class="form-row">
+      {{ form.username.label_tag }}<br>
+      {{ form.username }}<br>
+  </div>
+  <div class="form-row">
+      {{ form.password.label_tag }}<br>
+      {{ form.password }}<br>
+  </div>
+
+  
+  <div class="submit-row">
+    <input type="submit" value="ログイン" />
+    <input type="hidden" name="next" value="{{ next }}" />
+  </div>
+
+</form>
+
+{% endblock %}

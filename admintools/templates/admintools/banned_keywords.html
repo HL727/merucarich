@@ -1,0 +1,131 @@
+{% extends 'admintools/adminbase.html' %}
+
+{% block title %} Edit ItemName Convert Rule {% endblock %}
+
+{% block css %}
+
+td {
+  padding: 4px;
+}
+
+{% endblock %}
+
+{% block javascript %}
+$(function() {
+
+    $('#register').click(function() {
+        $('#register_form').submit();
+    });
+
+    $('#upload_csv_button').click(function() {
+        // if ($('#upload_csv_with_delete').prop('checked')) {
+        //     if (!window.confirm('全てのデータを削除します。 よろしいですか？')) {
+        //         return;
+        //     }
+        // }
+        $('#upload_csv_form').submit();
+    });
+
+
+    $('.delete_button').click(function() {
+        var me = $(this);
+        var itemid = me.attr('itemid');
+        $('#delete_item_id').val(itemid);
+        $('#delete_form').submit();
+    });
+
+{% if message %}
+    Utils.dialog('{{ message }}', '{{ message_detail}}');
+{% endif %}
+
+});
+{% endblock %}
+
+{% block html_body %} 
+<div class="container">
+  <center><h2>商品名禁止ワード編集</h2></center>
+  <br>
+  <ul class="nav nav-tabs">
+    <li role="presentation" class="active"><a href="#tab-rules" data-toggle="tab">ルール確認・削除</a></li>
+    <li role="presentation"><a href="#tab-add-rule" data-toggle="tab">ルール追加</a></li>
+    <li role="presentation"><a href="#tab-csv-upload" data-toggle="tab">CSVアップロード</a></li>
+  </ul>
+  <div class="tab-content">
+
+    <div id="tab-rules" class="tab-pane form-group active" style="padding-top: 10px;">
+      <div>
+        <ul>
+          <li>アルファベット・数値は全て半角小文字で表示されています</li>
+          <li>比較時には全角半角大文字小文字区別無く比較されます</li>
+        </ul>
+        <label>禁止ワード件数: {{ keywords | length }} 件</label>
+        <div class="pull-right" style="padding-bottom: 10px;">
+          <form class="form-horizontal" action="{% url 'admintools:banned_keywords' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" name="download_csv" class="btn btn-primary">CSVでダウンロード</button>
+          </form>
+        </div>
+      </div>
+      <table class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th class="col-md-1">#</th>
+          <th class="col-md-10">禁止ワード</th>
+          <th class="col-md-1">削除</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for keyword in keywords %} 
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ keyword.banned_keyword }}</td>
+          <td style="text-align: center;">
+            <button type="button" class="delete_button btn btn-primary" itemid="{{ keyword.id }}">削除</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      </table>
+    </div>
+
+    <div id="tab-csv-upload" class="tab-pane form-group" style="padding-top: 10px;">
+      <form id="upload_csv_form" class="form-horizontal" action="{% url 'admintools:banned_keywords' %}" enctype="multipart/form-data" method="post">
+        <div class="col-md-6">
+          {% csrf_token %}
+          <!-- <input id="upload_csv_with_delete" type="checkbox" name="delete_all" /> 既存データを全て削除する -->
+	        <input type="file" id="import_file" name="import_file">
+        </div>
+        <div class="col-md-6">
+          <div class="pull-right">
+            <button type="submit" id="upload_csv_button" name="upload_csv" class="btn btn-primary btn-lg">CSVでアップロード</button>
+          </div>
+        </div>
+      </form>
+    </div>
+ 
+    <div id="tab-add-rule" class="tab-pane form-group" style="padding-top: 10px;">
+      <form id="register_form" class="form-horizontal" action="{% url 'admintools:banned_keywords' %}" method="post">
+        {% csrf_token %}
+        <label>禁止ワード: </label>
+        <input type="text" class="form-control" maxlength="100" name="keyword">
+        <br>
+        <div class="pull-right">
+          <button type="submit" class="btn btn-primary btn-lg">登録</button> 
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+<div id="dialog" style="display:none;"><p></p></div>
+<div style="display: none;">
+  <form id="delete_form" action="{% url 'admintools:banned_keywords'  %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="delete" value="delete"/>
+    <input type="hidden" id="delete_item_id" name="id" value=""/>
+  </form>
+</div>
+{% endblock %}
+
+
+

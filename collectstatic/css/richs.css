@@ -1,0 +1,21 @@
+.feed-form-input {
+    width: 100%
+}
+
+.feed-form-img-select-button {
+    width: 100px
+}
+
+.feed-form-file-select-label {
+  color: white;  
+  background-color: red;
+  padding: 6px;
+  border-radius: 6px;
+  width: 100%;
+}
+
+
+
+td {
+  vertical-align: middle;
+}

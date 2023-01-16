@@ -1,0 +1,193 @@
+{% extends 'admintools/adminbase.html' %}
+
+{% block title %}めるかりっちくん AdminTools{% endblock %}
+
+{% block css %}
+
+td {
+  padding: 4px;
+}
+
+{% endblock %}
+
+{% block javascript %}
+$(function() {
+
+    $('#register').click(function() {
+        $('#register_form').submit();
+    });
+
+    $('#upload_csv_button').click(function() {
+        // if ($('#upload_csv_with_delete').prop('checked')) {
+        //     if (!window.confirm('全てのデータを削除します。 よろしいですか？')) {
+        //         return;
+        //     }
+        // }
+        $('#upload_csv_form').submit();
+    });
+
+    $('.delete_button').click(function() {
+        var me = $(this);
+        var itemid = me.attr('itemid');
+        $('#delete_item_id').val(itemid);
+        $('#delete_item_target').val('simple');
+        $('#delete_form').submit();
+    });
+
+    $('.alldelete_button').click(function() {
+        var me = $(this);
+        var itemid = me.attr('itemid');
+        $('#delete_item_id').val(itemid);
+        $('#delete_item_target').val('all');
+        $('#delete_form').submit();
+    });
+
+
+{% if message %}
+    Utils.dialog('{{ message }}', '{{ message_detail}}');
+{% endif %}
+
+});
+{% endblock %}
+
+{% block html_body %} 
+<div class="container">
+  <center><h2>禁止ASIN一括設定</h2></center>
+  <br>
+  <ul class="nav nav-tabs">
+    <li role="presentation" class="active"><a href="#tab-rules" data-toggle="tab">ルール確認・削除</a></li>
+    <li role="presentation"><a href="#tab-add-rule" data-toggle="tab">ルール追加</a></li>
+    <li role="presentation"><a href="#tab-csv-upload" data-toggle="tab">CSVアップロード</a></li>
+    <li role="presentation"><a href="#tab-apply-master" data-toggle="tab">マスタ反映</a></li>
+  </ul>
+  <div class="tab-content">
+
+    <div id="tab-rules" class="tab-pane form-group active" style="padding-top: 10px;">
+      <div>
+        <form class="form-horizontal form-inline" action="{% url 'admintools:exclude_asins' %}" method="get">
+          <select name="user" class="form-control" style="min-width: 400px;">
+            {% for user in users %}
+            {% if user.username == selected_username %}
+            <option selected="selected" value="{{ user.username }}">{{ user.username }}</option>
+            {% else %}
+            <option value="{{ user.username }}">{{ user.username }}</option>
+            {% endif %}
+            {% empty %}
+            <option value="" selected="selected">----</option>
+            {% endfor %}
+          </select>
+          <button type="submit" class="btn btn-primary">表示</button>
+        </form>
+      </div>
+      <br>
+      <div>
+        <label>禁止ASIN件数: {{ asins | length }} 件</label>
+        <div class="pull-right" style="padding-bottom: 10px;">
+          <form class="form-horizontal" action="{% url 'admintools:exclude_asins' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" name="download_csv" class="btn btn-primary">全データをCSVでダウンロード</button>
+          </form>
+        </div>
+      </div>
+
+      <table class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th class="col-md-2">#</th>
+          <th class="col-md-2">禁止ASIN</th>
+          <th class="col-md-3">ユーザー名</th>
+          <th class="col-md-2">メモ</th>
+          <th class="col-md-3">削除</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for asin in asins %} 
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ asin.asin }}</td>
+          <td>{{ asin.author.username }}</td>
+          <td>{{ asin.memo | default_if_none:"" }}</td>
+          <td style="text-align: center;">
+            <button type="button" class="delete_button btn btn-primary" itemid="{{ asin.id }}">削除</button>
+            <button type="button" class="alldelete_button btn btn-primary" itemid="{{ asin.id }}">全ユーザーから削除</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      </table>
+
+    </div>
+
+    <div id="tab-csv-upload" class="tab-pane form-group" style="padding-top: 10px;">
+      <form id="upload_csv_form" class="form-horizontal" action="{% url 'admintools:exclude_asins' %}" enctype="multipart/form-data" method="post">
+        <div class="col-md-6">
+          {% csrf_token %}
+          <!-- <input id="upload_csv_with_delete" type="checkbox" name="delete_all" /> 既存データを全て削除する -->
+	        <input type="file" id="import_file" name="import_file">
+          <input type="hidden" name="upload_csv" value="upload_csv"/>
+        </div>
+        <div class="col-md-6">
+          <div class="pull-right">
+            <button id="upload_csv_button" type="button" class="btn btn-primary btn-lg">CSVでアップロード</button>
+          </div>
+        </div>
+        <small>※対象を all でアップロードしたデータは禁止ASINマスタにも自動的に取り込まれます。</small><br>
+      </form>
+    </div>
+ 
+    <div id="tab-add-rule" class="tab-pane form-group" style="padding-top: 10px;">
+      <form id="register_form" class="form-horizontal" action="{% url 'admintools:exclude_asins' %}" method="post">
+        {% csrf_token %}
+        <label>対象ユーザー: </label>
+        <select name="author" class="form-control">
+          <option value="ALL" selected="selected">全てのユーザー</option>
+          {% for user in users %}
+          <option value="{{ user.username }}">{{ user.username }}</option>
+          {% endfor %}
+        </select>
+        <small>※全てのユーザーを選択した場合、禁止ASINマスタにも自動的に登録されます。</small><br>
+        <br>
+        <label>禁止ASIN: </label>
+        <input type="text" class="form-control" maxlength="16" name="asin">
+        <br>
+        <label>メモ: </label>
+        <input type="text" class="form-control" maxlength="100" name="memo">
+        <br>
+        <div class="pull-right">
+          <button type="submit" class="btn btn-primary btn-lg">登録</button> 
+        </div>
+      </form>
+    </div>
+
+    <div id="tab-apply-master" class="tab-pane form-group" style="padding-top: 10px;">
+      <form action="{% url 'admintools:exclude_asins'  %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="apply_master" value="apply_master"/>
+        <div style="text-align: center;">
+          <br>
+          <button type="submit" class="btn btn-primary btn-lg">全てのユーザーに最新の禁止ASINマスタ情報を反映する</button> 
+          <br>
+          <br>
+        </div>
+        <div>
+          <small>※マスタ情報はデータベースの管理画面から確認・登録してください。</small>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+<div id="dialog" style="display:none;"><p></p></div>
+<div style="display: none;">
+  <form id="delete_form" action="{% url 'admintools:exclude_asins'  %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="delete" value="delete"/>
+    <input type="hidden" name="user" value="{{ selected_username }}"/>
+    <input type="hidden" id="delete_item_id" name="id" value=""/>
+    <input type="hidden" id="delete_item_target" name="target" value="simple"/>
+  </form>
+</div>
+{% endblock %}
+
+
+

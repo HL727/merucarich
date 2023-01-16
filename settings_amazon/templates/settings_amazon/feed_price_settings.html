@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% load widget_tweaks %}
+
+{% block title %} AmazonAPI設定{% endblock %}
+
+{% block script_onload %}
+
+Utils.selectAmazonSetting();
+{% if message %}
+Utils.dialog('{{ message }}', '{{ message_detail}}');
+{% endif %}
+
+{% endblock %}
+
+{% block html_body %}
+<div class="container">
+	<center>
+		<h2>Amazon利益設定</h2>
+	</center>
+	<form class="form-horizontal" action="{% url 'settings_amazon:feed_price_settings'  %}" method="post">
+		{% csrf_token %}
+
+		<div class="panel panel-default" style="width:100%">
+			<div class="panel-heading" style="text-align:left">【商品リサーチ】から出品時の利益設定額</div>
+			<div class="panel-body" style="text-align: left;">
+				<div style="padding: 20px;">
+					<div class="form-group">
+						{{ form.margin_new.label_tag }}<br>
+						{{ form.margin_new | add_class:"form-control" }}<br>
+					</div>
+					<div class="form-group">
+						{{ form.margin_offer.label_tag }}<br>
+						{{ form.margin_offer | add_class:"form-control" }}<br>
+					</div>
+					<div class="form-group">
+						{{ form.default_minimum_item_price.label_tag }}(一括データ作成・新規出品時にも有効)<br>
+						{{ form.default_minimum_item_price | add_class:"form-control" }}<br>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-default" style="width:100%">
+			<div class="panel-heading" style="text-align:left">【Amazon一括データ作成】から相乗り出品時の利益設定額</div>
+			<div class="panel-body" style="text-align: left;">
+				<div style="padding: 20px;">
+					<div class="form-group">
+						{{ form.margin_offer_url.label_tag }}<br>
+						{{ form.margin_offer_url | add_class:"form-control" }}<br>
+					</div>
+					<div class="form-group">
+						{{ form.margin_offer_percent_url.label_tag }}<br>
+						{{ form.margin_offer_percent_url | add_class:"form-control" }}<br>
+					</div>
+					<div class="form-group">
+						{{ form.offset_offer_price_url.label_tag }}<br>
+						{{ form.offset_offer_price_url | add_class:"form-control" }}<br>
+					</div>
+					<div class="form-group">
+						{{ form.lowest_offer_price_url.label_tag }}<br>
+						{{ form.lowest_offer_price_url | add_class:"form-control" }}<br>
+					</div>
+				</div>
+			</div>
+		</div>
+		<input type="submit" value="登録" />
+	</form>
+</div>
+{% endblock %}

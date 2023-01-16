@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% load widget_tweaks %}
+
+{% block title %}メルカリッチくん{% endblock %}
+
+
+{% block script_onload %}
+
+Utils.selectYahoo();
+{% if message %}
+Utils.dialog('{{ message }}', '{{ message_detail}}');
+{% endif %}
+
+{% endblock %}
+
+{% block html_body %} 
+
+
+
+<center><h2>Yahooオークション商品リサーチ</h2></center>
+
+
+<br>
+<br>
+<center>
+  <table width="70%" border=1 style="table-layout: fixed;">
+
+    <tr>
+      <th rowspan="2" widh="15%" style="background-color:silver">画像</th>
+      <th colspan="4" widh="75%" style="background-color:silver">商品タイトル</th>
+      <th rowspan="2" widh="10%" style="background-color:silver">出品</th>
+    </tr>
+    <tr>
+      <th width="30%" style="background-color:silver">セラーID</th>
+      <th width="10%" style="background-color:silver">総合評価値：良評価数：悪評価数</th>
+      <th width="10%" style="background-color:silver">コンディション</th>
+      <th width="10%" style="background-color:silver">価格</th>
+    </tr>
+
+
+    <tr>
+      <td rowspan="2" widh="15%"><a href="{{ item.url }}" target="_blank"><img src="{{ item.images.0 }}" width="100%"/></a></td>
+      <td colspan="4" widh="75%">{{ item.title}}</td>
+      <td rowspan="2" widh="10%"><button type="button" value="{{item.auction_id }}" onclick="window.open('{% url 'yahoo:feed_amazon_new' %}');">新規出品</button></td>
+    </tr>
+    <tr>
+      <td width="15%"><a href="https://auctions.yahoo.co.jp/seller/{{ item.seller }}" target="_blank">{{ item.seller }}</a></td>
+      <td width="10%">{{ item.rate  }}</td>
+      <td width="10%">{{ item.condition }}</td>
+      <td width="10%">{{ item.current_price }}:{{ item.bid_or_buy }}</td>
+    </tr>
+
+  </table>
+  <br>
+  <br>
+  <table width="70%" style="table-layout: fixed;">
+    <tr>
+      <td>
+	<form action="{% url 'yahoo:research_amazon_by_yahoo'  %}" method="post">
+	  {% csrf_token %}
+	  <div>
+	    {{ form.keyword.label_tag }}<br>
+	    {{ form.keyword | add_class:"form-control" }}<br>
+	  </div>
+	  <input type="submit" value="検索" />
+	</form>
+      </td>
+    </tr>
+  </table>
+  <br>
+  Amazon検索結果<br>
+  <br>
+
+  <table width="70%" border=1 style="table-layout: fixed;">
+    <tr>
+      <th widh="15%" style="background-color:silver">画像</th>
+      <th widh="55%"style="background-color:silver">商品タイトル</th>
+      <th widh="10%" style="background-color:silver">ASIN</th>
+      <th widh="10%" style="background-color:silver">最低価格</th>
+      <th widh="10%" style="background-color:silver">出品</th>
+    </tr>
+    {% for amazon_item in amazon_items %}
+    <tr>
+      <td widh="15%"><a href="https://www.amazon.co.jp/dp/{{amazon_item.asin}}" target="_blank"><img src="{{ amazon_item.image }}" width="100%"/></a></td>
+      <td widh="55%">{{amazon_item.title}}</td>
+      <td widh="10%"><a href="https://www.amazon.co.jp/dp/{{amazon_item.asin}}" target="_blank">{{amazon_item.asin}}</a></td>
+      <td widh="10%">
+	{% if amazon_item.valid_price  == 'True' %}
+	新品:{{amazon_item.price_new}}円<br>
+	中古:{{amazon_item.price_old}}円<br>
+	{% endif %}
+	<a href="https://www.amazon.co.jp/gp/offer-listing/{{amazon_item.asin}}/ref=dp_olp_all_mbc?ie=UTF8&condition=all" target="_blank">価格一覧</a>
+      </td>
+      <td widh="10%"><button type="button"  onclick="window.open('{% url 'yahoo:feed_amazon_offer' %}?asin={{amazon_item.asin}}&valid_price={{amazon_item.valid_price}}&price_new={{amazon_item.price_new}}&price_old={{amazon_item.price_old}}&image={{amazon_item.image|urlencode}}');">相乗出品</button></td></td>
+    </tr>
+    {% endfor %}
+  </table>
+ </center>  
+
+
+
+
+{% endblock %}
+
+
+
+

@@ -1,0 +1,131 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="NONE,NOARCHIVE">
+    <title>{% block title %}My amazing site{% endblock %}</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.blockUI/2.70.0-2014.11.23/jquery.blockUI.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script type="text/javascript" src="{% static 'js/Utils.js' %}?v=1"></script>
+    <link rel="stylesheet" href="{% static 'css/richs.css' %}">
+    <link rel="shortcut icon" href="/static/favicon.ico?v=1">
+
+
+    <style>
+      .dropdown:hover > .dropdown-menu{
+      display: block;
+      }
+      body {
+      padding-top: 70px; 
+      }
+    </style>
+  </head>
+
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container-fluid">
+	<div class="navbar-header">
+	  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbarEexample">
+	    <span class="sr-only">Toggle navigation</span>
+	    <span class="icon-bar"></span>
+	    <span class="icon-bar"></span>
+	    <span class="icon-bar"></span>
+	  </button>
+	  <a class="navbar-brand" href="/home">HOME</a>
+	</div>
+	<div class="collapse navbar-collapse" id="navbarEexample">
+	  <ul class="nav navbar-nav">
+	    <li class="dropdown1 dropdown">
+	      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">ヤフオクリサーチ<span class="caret"></span></a>
+	      <ul class="dropdown-menu" role="menu">
+		<li><a href="{% url 'yahoo:research' %}">商品リサーチ</a></li>
+		<li><a href="{% url 'yahoo:amazon_offer_research' %}">Amazon一括出品データ作成（ヤフオク）</a></li>	    
+		<li><a href="{% url 'yahoo:exclude_seller' %}">除外セラーID</a></li>
+		<li><a href="{% url 'yahoo:item_list' %}">出品商品一覧</a></li>
+		<li><a href="{% url 'yahoo:import_report' %}">AMAZON出品レポート取込</a></li>
+		<li><a href="{% url 'yahoo:export_amazon_offer_csv' %}">AMAZON相乗り出品用CSV出力</a></li>
+		<li><a href="{% url 'yahoo:export_amazon_new_csv' %}">AMAZON新規出品用CSV出力</a></li>
+		<li><a href="{% url 'yahoo:export_amazon_new_csv_from_candidate' %}">AMAZON新規出品用CSV出力（自動生成）</a></li>
+		<li><a href="{% url 'yahoo:download_amazon_csv' %}">AMAZON相乗り・新規出品用ファイルダウンロード</a></li>
+	      </ul>
+	    </li>
+	    <li class="dropdown2 dropdown">
+	      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">メルカリリサーチ<span class="caret"></span></a>
+	      <ul class="dropdown-menu" role="menu">
+		<li><a href="{% url 'mercari:research' %}">商品リサーチ</a></li>
+		<li><a href="{% url 'mercari:amazon_offer_research' %}">Amazon一括出品データ生成（メルカリ）</a></li>	    
+		<li><a href="{% url 'mercari:exclude_seller' %}">除外セラーID</a></li>
+		<li><a href="{% url 'mercari:item_list' %}">出品商品一覧</a></li>
+		<li><a href="{% url 'mercari:import_item' %}">AMAZON商品取込</a></li>
+		<li><a href="{% url 'mercari:export_amazon_offer_csv' %}">AMAZON相乗り出品用CSV出力</a></li>
+		<li><a href="{% url 'mercari:export_amazon_new_csv' %}">AMAZON新規出品用CSV出力</a></li>
+		<li><a href="{% url 'mercari:export_amazon_new_csv_from_candidate' %}">AMAZON新規出品用CSV出力 (自動生成)</a></li>
+		<li><a href="{% url 'mercari:download_amazon_csv' %}">AMAZON相乗り・新規出品用ファイルダウンロード</a></li>
+	      </ul>
+	    </li>
+	    <li class="dropdown3 dropdown">
+	      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">AMAZON設定<span class="caret"></span></a>
+	      <ul class="dropdown-menu" role="menu">
+		<li><a href="{% url 'settings_amazon:api_settings' %}">AmazonAPI設定</a></li>
+		<li><a href="{% url 'settings_amazon:feed_price_settings' %}">Amazon利益設定</a></li>
+		<li><a href="{% url 'settings_amazon:default' %}">Amazonデフォルト設定</a></li>
+		<li><a href="{% url 'settings_amazon:category' %}">Amazonカテゴリー順序設定</a></li>
+		<li><a href="{% url 'settings_amazon:brand' %}">Amazonブランド設定</a></li>
+		<li><a href="{% url 'settings_amazon:exclude_asin' %}">Amazon禁止ASIN設定</a></li>
+	      </ul>
+	    </li>
+	  </ul>
+	  <div class="nav navbar-right">
+	    <a href="/accounts/logout">
+	      <button type="button" class="btn btn-default navbar-btn navbar-right" style="margin-right: 10px;">
+		ログアウト
+	      </button>
+	    </a>
+	    <a href="/accounts/password_change">
+	      <button type="button" class="btn btn-default navbar-btn navbar-right" style="margin-right: 10px;">
+		パスワード変更
+	      </button>
+	    </a>
+	  </div>
+	</div>
+      </div>
+    </nav>
+
+
+    <script>
+      {% block script_top %}{% endblock %}
+      window.onload = function() {
+
+      // ローディング画面
+      $("form").submit(function() {
+      $.blockUI({ 
+      "message": "処理中です。お待ちください。", 
+      "css": {
+      "padding": "10px 30px",
+      "font-size": "20px",
+      "font-weight": "bold"
+      } 
+      });
+      });
+
+
+      {% block script_onload %}{% endblock %}
+      }
+    </script>
+
+
+    <div id="dialog" style="display:none;"><p></p></div>
+    {% block html_body %} {% endblock %}
+  </body>
+
+</html>

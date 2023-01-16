@@ -1,0 +1,57 @@
+{% extends 'admintools/adminbase.html' %}
+
+{% block title %} AdminTools Index {% endblock %}
+
+{% block css %}
+
+td {
+  padding: 4px;
+}
+
+{% endblock %}
+
+{% block html_body %} 
+<div class="container">
+  <center>
+    <h2>AdminTools Index</h2>
+    <br>
+    <p>利用するツールを選択してください (この画面は管理者専用です)。</p>
+  </center>
+
+  <table width="95%" border="1" style="table-layout: fixed;">
+	  <tr width="100%">
+	    <th width="5%"  style="background-color:silver">No</th>
+	    <th width="20%" style="background-color:silver">ツール</th>
+	    <th width="75%" style="background-color:silver">説明</th>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td><a href="{% url 'admintools:ipstatus'  %}">IP Status Checker</a></td>
+      <td>ユーザー毎に設定されているIPアドレスが各サービスでブロックされていないかをチェックします</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><a href="{% url 'admintools:banned_keywords'  %}">Edit Banned Keywords</a></td>
+      <td>商品の禁止ワードを編集します</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><a href="{% url 'admintools:exclude_asins'  %}">Edit Exclude ASINs</a></td>
+      <td>禁止ASINを一括編集します</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td><a href="{% url 'admintools:exclude_sellers'  %}">Edit Exclude Sellers</a></td>
+      <td>禁止セラーを一括編集します</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td><a href="{% url 'admintools:itemname_rules'  %}">Edit ItemName Convert Rules</a></td>
+      <td>新規出品商品を取り込む時の名前変換ルールを編集します</td>
+    </tr>
+  </table>
+</div>
+{% endblock %}
+
+
+

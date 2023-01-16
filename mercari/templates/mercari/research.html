@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+
+{% load widget_tweaks %}
+
+{% block title %}メルカリッチくん{% endblock %}
+
+
+{% block script_onload %}
+
+Utils.selectMercari();
+{% if message %}
+Utils.dialog('{{ message }}', '{{ message_detail}}');
+{% endif %}
+
+
+$('#id_condition_all').on('click', function() {
+$('input[name^=condition_id_]').prop('checked', this.checked);
+});
+
+$('#id_shipping_payer_all').on('click', function() {
+$('input[name^=shipping_payer_id_]').prop('checked', this.checked);
+});
+
+$('#id_status_all').on('click', function() {
+$('input[name^=status_id_]').prop('checked', this.checked);
+});
+
+// すべて以外が操作された場合
+
+$('input[name^=condition_id_]').on('click', function() {
+var len = $('input[name^=condition_id_]:checked').length;
+var val = len == 6 ? true : false;
+$('#id_condition_all').prop('checked',val) 
+});
+
+$('input[name^=shipping_payer_id_]').on('click', function() {
+var len = $('input[name^=shipping_payer_id_]:checked').length;
+var val = len == 2 ? true : false;
+$('#id_shipping_payer_all').prop('checked',val) 
+});
+
+$('input[name^=status_id_]').on('click', function() {
+var len = $('input[name^=status_id_]:checked').length;
+var val = len == 2 ? true : false;
+$('#id_status_all').prop('checked',val) 
+});
+
+
+{% endblock %}
+
+{% block html_body %} 
+<center><h2>メルカリ商品リサーチ</h2>
+{% if messages %}
+  <ul class="list-group">
+    {% for message in messages %}
+      <li class="list-group-item list-group-item-danger">{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+  <form class="form-horizontal" action="{% url 'mercari:research'  %}" method="post">
+    {% csrf_token %}
+    <div class="form-group">      
+      <div class="panel panel-default" style="width:90%">
+	<div class="panel-heading" style="text-align:left">メルカリ検索指定条件</div>
+	<div class="panel-body" style="text-align:left;">
+	  <table width="100%">
+	    <tr>
+	      <td width="10%">
+		<b>検索方法</b>
+	      </td>
+	      <td width="90%">
+		{{ form.search_type.0 }}&nbsp&nbsp&nbsp{{ form.search_type.1 }} 
+	      </td>
+	    </tr>
+	    <tr>
+	      <td width="10%">
+		<b>検索ワード</b>
+	      </td>
+	      <td width="90%">
+		{{ form.keyword | add_class:"form-control" }}
+	      </td>
+	    </tr>
+	    <tr>
+	      <td width="10%">
+		<b>価格</b>
+	      </td>
+	      <td width="90%">
+		{{ form.price_min }} 〜 {{ form.price_max }}
+	      </td>
+	    </tr>
+	    <tr>
+	      <td width="10%">
+		<b>商品の状態:</b>
+	      </td>
+	      <td width="90%">
+		{{ form.condition_all.label_tag }}
+		{{ form.condition_all }}&nbsp&nbsp&nbsp
+		{{ form.condition_id_1.label_tag }}
+		{{ form.condition_id_1 }}&nbsp&nbsp&nbsp
+		{{ form.condition_id_2.label_tag }}
+		{{ form.condition_id_2 }}&nbsp&nbsp&nbsp
+		{{ form.condition_id_3.label_tag }}
+		{{ form.condition_id_3 }}&nbsp&nbsp&nbsp
+		{{ form.condition_id_4.label_tag }}
+		{{ form.condition_id_4 }}&nbsp&nbsp&nbsp
+		{{ form.condition_id_5.label_tag }}
+		{{ form.condition_id_5 }}&nbsp&nbsp&nbsp
+		{{ form.condition_id_6.label_tag }}
+		{{ form.condition_id_6 }}&nbsp&nbsp&nbsp
+		{{ form.condition_id_7.label_tag }}
+		{{ form.condition_id_7 }}
+	      </td>
+	    </tr>
+	    <tr>
+	      <td width="10%">
+		<b>送料負担:</b>
+	      </td>
+	      <td width="90%">
+		{{ form.shipping_payer_all.label_tag }}
+		{{ form.shipping_payer_all }}&nbsp&nbsp&nbsp
+		{{ form.shipping_payer_id_1.label_tag }}
+		{{ form.shipping_payer_id_1 }}&nbsp&nbsp&nbsp
+		{{ form.shipping_payer_id_2.label_tag }}
+		{{ form.shipping_payer_id_2 }}
+	      </td>
+	    </tr>
+	    <tr> 
+	      <td width="10%">
+		<b>販売状況:</b>
+	      </td>
+	      <td width="90%">
+		{{ form.status_all.label_tag }}
+		{{ form.status_all }}&nbsp&nbsp&nbsp
+		{{ form.status_id_on_sale.label_tag }}
+		{{ form.status_id_on_sale }}&nbsp&nbsp&nbsp
+		{{ form.status_id_trading_sold_out.label_tag }}
+		{{ form.status_id_trading_sold_out }}
+	      </td>
+	    </tr>
+	    <tr>
+	      <td width="10%">
+		<b>検索優先順位:</b>
+	      </td>
+	      <td width="90%">
+		{{ form.sort_order.label_tag }}
+		{{ form.sort_order }}
+	      </td>
+	    </tr>
+	    <tr>
+	      <td>
+		<br>
+		<input type="submit" name="search" value="検索">
+	      </td>
+	    </tr>
+	  </table>
+	</div>
+      </div>
+    </div>
+    {% if page %}
+    <br>
+    <br>
+    <input type="hidden" name="page" value="{{ page }}">
+    <table width="450px" style="table-layout: fixed;">
+      <tr>
+	<td width="150px">
+	  {% if prev_page_url %}
+	  <input type="hidden" name="prev_page_url" value="{{ prev_page_url }}">
+	  <input type="submit" name='prev' id="submit" value="前のページへ">    
+	  {% endif %}
+	</td>
+	<td width="150px">
+	  &emsp;{{page}}ページ目&emsp;
+	</td>      
+	<td width="150px">
+	  {% if next_page_url %}
+	  <input type="hidden" name="next_page_url" value="{{ next_page_url }}">
+	  <input type="submit" name="next" value="次のページへ">    
+	  {% endif %} 
+	</td>
+      </tr>
+    </table>  
+    <br>
+    <table  width="90%"  border=1 style="table-layout: fixed;">
+      <tr>
+	<th width="15%" style="background-color:silver">画像</th>
+	<th width="75%" style="background-color:silver">商品タイトル</th>
+	<th width="5%" style="background-color:silver">価格</th>
+	<th width="5%" style="background-color:silver">いいね!</th>
+	<th width="120px" style="background-color:silver">出品</th>
+      </tr>
+      {% for item in items %}
+      <tr>
+	<td width="15%"><a href="{{ item.url }}" target="_blank"><img src="{{ item.images.0 }}" width="100%"/></a></td>
+	<td width="75%">{{ item.title}}</td>
+	<td width="5%">{{ item.price }}円</td>
+	<td width="5%">{{ item.like }}</td>
+	<td width="120px"><button type="button" value="{{item.item_id }}" onclick="window.open('{% url 'mercari:research_amazon_by_mercari' %}?item_id={{ item.item_id }}');">Amazon出品</button></td>
+      </tr>
+      {% endfor %}    
+    </table>
+    {% endif %}
+  </form>
+</center>
+
+
+
+{% endblock %}
+
+
+
+

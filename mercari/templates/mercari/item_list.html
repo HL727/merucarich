@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+
+{% load widget_tweaks %}
+
+{% block title %}メルカリッチくん{% endblock %}
+
+
+{% block script_onload %}
+
+Utils.selectMercari();
+{% if message %}
+Utils.dialog('{{ message }}', '{{ message_detail}}');
+{% endif %}
+
+{% endblock %}
+
+{% block html_body %} 
+
+<center><h2>メルカリリサーチより出品した商品一覧</h2>
+  <br>
+  <br>
+  <form class="form-horizontal" action="{% url 'mercari:item_list'  %}" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <table width="95%">
+	<tr>
+	  <td align="left">
+	    {{form.search_type.label_tag}}&emsp;{{form.search_type}}&emsp;&emsp;
+	    {{form.search_condition.label_tag}}&emsp;
+	    {{form.search_condition}}&emsp;&emsp;{{form.keyword.label_tag}}&emsp;{{form.keyword | attr:"style:width:300px;"}}&emsp;
+	    <input type="submit" name="search" value="検索">
+	  </td>
+	</tr>
+      </table>
+      <br>
+      <table width="95%">
+	<tr>
+	  <td align="left">
+      <button type="button" onclick="$('.taget_check').prop('checked', true);">全て選択</button>
+      <button type="button" onclick="$('.taget_check').prop('checked', false);">全て選択解除</button>
+      <input type="submit" name="export_csv" onclick="unblock(3000);" value="CSVでダウンロード"/>
+	    &emsp;
+      <input type="submit" name="delete" value="選択した商品を削除">
+      <button type="button" onclick="$('#skus').show();">SKUを指定して削除</button>
+      <input type="submit" name="delete_all" value="全データを削除" onclick="return check('本当に、全データを削除しても良いですか？');">
+	  </td>
+	</tr>
+	<tr id="skus" style="display:none">
+	  <td align="left">
+	    <br>
+	    削除するSKUを1行ずつ記載して、削除ボタンを押してください。<br>
+	    <textarea name="delete_skus_text" cols="20" rows="10"></textarea><br>
+	    <input type="submit" name="delete_skus" value="削除">
+	    <button type="button" onclick="$('#skus').hide();">閉じる</button>
+	    <br>
+	    <br>
+	  <td>
+	</tr>
+      </table>
+      <br>
+
+
+
+
+      <input type="hidden" name="page" value="{{ page }}" id="page">
+
+      {% if top_timestamp %}
+      <input type="hidden" name="top_timestamp" value="{{ top_timestamp }}" id="id_top_timestamp">
+      {% endif %}
+
+      <table width="95%" style="table-layout: fixed;">
+	<tr>
+	  <td align="center">
+	    <table width="360px" style="table-layout: fixed;">
+	      <tr>
+		<td align="center" width="120px">
+		  <input type="submit" name="prev" value="{% if page == 1 %}更新{% else %}前へ{% endif %}">
+		</td>
+		<td align="center" width="120px">
+		  &emsp;{{page}}ページ目&emsp;
+		</td>      
+		<td align="center" width="120px">
+		  {% if has_next %}
+		  <input type="submit" name="next" value="次へ">
+		  {% endif %}
+		</td>
+	      </tr>
+	    </table> 
+	  </td>
+	</tr>
+	<tr align="left">
+	  <td>合計：{{feed_items_count}}商品登録中（最大{{max_items}}商品まで登録可能) - 表示対象件数：{{items_count}}件</td>
+	</tr>
+      </table>
+
+      <table width="95%" border="1" style="table-layout: fixed;">
+	<tr width="100%">
+	  <th  width="5%"  class="th" style="background-color:silver">No</th>
+	  <th  width="5%"  class="th" style="background-color:silver">選択</th>
+	  <th  width="15%" class="th" style="background-color:silver">商品画像</th>
+	  <th  width="25%" class="th" style="background-color:silver">商品名</th>
+	  <th  width="150px%"  class="th" style="background-color:silver">AMAZON<br>SKU</th>
+	  <th  width="150px"  class="th" style="background-color:silver">メルカリの商品ID<br>（出品元の商品ID</th>
+	  <th  width="150px"  class="th" style="background-color:silver">出品者ID</th>
+	  <th  width="5%"  class="th" style="background-color:silver">リード<br>タイム</th>
+	  <th  width="5%"  class="th" style="background-color:silver">在庫</th>
+	  <th  width="5%"  class="th" style="background-color:silver">出品状況</th>
+	  <th  width="10%"  class="th" style="background-color:silver">自動在庫チェック結果</th>
+	</tr>
+	{% for item in items %}
+	<tr width="100%"  {% if item.current_purchase_quantity == 0 %}style="background-color:silver"{% endif %}>
+	  <td  width="5%"  class="td" >{{ item.local_id }}</td>
+	  <td  width="5%"  class="td" ><input type="checkbox" name="ids" value="{{ item.id }}" class='taget_check'></td>
+	  <td  width="15%" class="td" ><img src="{{item.main_image_url}}" width="100%" ></td>
+	  <td  width="25%"  class="td" >{{ item.item_name }}</td>
+	  <td  width="150px%"  class="td" >{{ item.item_sku }}</td>
+	  <td  width="150px" class="td" ><a href="https://item.mercari.com/jp/{{ item.current_purchase_item_id }}/" target="_blank">{{ item.current_purchase_item_id }}</td>      
+	  <td  width="150px"  class="td" ><a href="https://www.mercari.com/jp/u/{{ item.current_purchase_seller_id }}/" target="_blank">{{ item.current_purchase_seller_id }}</a></td>
+	  <td  width="5%">{{ item.current_purchase_fulfillment_latency }}</td>
+	  <td  width="5%">{{ item.current_purchase_quantity }}</td>
+	  <td  width="5%">{{ item.status_message | safe }}</td>
+	  <td  width="10%">{{ item.inventory_message | safe }}</td>
+	</tr>
+	{% endfor %}
+      </table>
+
+  <!-- footer -->
+  <table width="95%" style="table-layout: fixed; margin-top: 20px;">
+	  <tr>
+	    <td align="center">
+	      <table width="360px" style="table-layout: fixed;">
+	        <tr>
+		        <td align="center" width="120px">
+		          <input type="submit" name="prev" value="{% if page == 1 %}更新{% else %}前へ{% endif %}">
+		        </td>
+		        <td align="center" width="120px">
+		          &emsp;{{page}}ページ目&emsp;
+		        </td>      
+		        <td align="center" width="120px">
+		          {% if has_next %}
+		          <input type="submit" name="next" value="次へ">
+		          {% endif %}
+		        </td>
+	        </tr>
+	      </table> 
+	    </td>
+	  </tr>
+  </table>
+
+  </form>
+</center>
+
+<script>
+
+
+  function check(msg){
+  if(window.confirm(msg)) {
+  return true;
+  } else {
+  window.alert('キャンセルしました。');
+  return false;
+  }
+  }
+
+  function unblock(msec) { 
+      setTimeout(function() {
+        $.unblockUI();
+      }, msec);
+      return true;
+  }
+
+</script>
+
+
+
+
+{% endblock %}
+
+
+

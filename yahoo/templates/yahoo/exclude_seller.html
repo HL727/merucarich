@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% load widget_tweaks %}
+
+{% block title %}メルカリッチくん{% endblock %}
+
+
+{% block script_onload %}
+
+Utils.selectYahoo();
+{% if message %}
+Utils.dialog('{{ message }}', '{{ message_detail}}');
+{% endif %}
+
+{% endblock %}
+
+{% block html_body %} 
+<div class="container">
+  <center><h2>検索除外セラーID</h2></center>
+
+  <form class="form-horizontal" action="{% url 'yahoo:exclude_seller'  %}" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      {{ form.seller_id.label_tag }}<br>
+      {{ form.seller_id | add_class:"form-control" }}<br>
+      {{ form.memo.label_tag }}<br>
+      {{ form.memo | add_class:"form-control" }}<br>
+    </div>
+    <input type="submit" value="登録" />
+  </form>
+
+  <br>
+
+  {% if sellers.count > 0 %} 
+  <form class="form-horizontal" action="{% url 'yahoo:delete_exclude_seller'  %}" method="post">
+    <table class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th class="col-xs-1">削除</th>
+          <th>セラーID</th>
+	  <th>メモ</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for seller in sellers %}
+        <tr>
+          <td><input type="checkbox" name="delete_ids" value="{{ seller.id }}"></td>
+          <td>{{ seller.seller_id }}</td>
+	  <td>{% if seller.memo != None %}{{ seller.memo }}{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% csrf_token %}
+    <input type="submit" value="削除">
+  </form>
+</div>
+
+{% endif %}
+{% endblock %}
+
+
+

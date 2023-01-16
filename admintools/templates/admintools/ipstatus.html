@@ -1,0 +1,195 @@
+{% extends 'admintools/adminbase.html' %}
+
+{% block title %} IP Status Checker {% endblock %}
+
+{% block css %}
+
+td {
+  padding: 4px;
+}
+
+td.center {
+  text-align: center;
+}
+
+{% endblock %}
+
+{% block javascript %}
+$(function() {
+
+  var downloadFile = function(filename, content) {
+    var bom  = new Uint8Array([0xEF, 0xBB, 0xBF]);
+    var blob = new Blob([ bom, content ], { 
+      encoding: 'UTF-8', 
+      type : 'text/plain;charset=UTF-8',
+    });
+    if (window.navigator.msSaveBlob) { 
+      // for IE
+      window.navigator.msSaveOrOpenBlob(blob, filename); 
+    } else {
+      var url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    }
+  };
+
+
+  var updateStatus = function(apiurl, btn, site, withSource) {
+    var index = btn.attr('btnindex');
+    var label = $('#result-' + site + '-' + index);
+    var data = {
+      checkurl: $('#checkurl-' + site).val(),
+      ipaddress: $('#ipaddr-' + index).val(),
+      withsource: withSource ? 1 : 0,
+    };
+    label.removeClass().addClass('label label-info');
+    label.text('確認中...');
+    $.ajax({
+      url: apiurl,
+      data: data,
+    }).done(function(data) { 
+      if (!data.success) {
+        label.removeClass().addClass('label label-danger');
+        label.text('接続失敗');
+      } else {
+        label.removeClass().addClass('label label-success');
+        label.text('接続成功');
+      }
+      if (withSource) {
+        var filename = site + Math.floor(new Date().getTime()) + '.txt';
+        downloadFile(filename, data.html);
+      }
+    }).fail(function() {
+       label.removeClass().addClass('label label-danger');
+       label.text('内部エラー');
+    });
+  };
+
+  $('.amazonbutton').click(function() {
+    updateStatus("{% url 'admintools:api.ipstatus.amazon' %}", $(this), 'amazon', false);
+  });
+
+  $('.amazonbutton-download').click(function() {
+    updateStatus("{% url 'admintools:api.ipstatus.amazon' %}", $(this), 'amazon', true);
+  });
+
+  $('.yahoobutton').click(function() {
+    updateStatus("{% url 'admintools:api.ipstatus.yahoo' %}", $(this), 'yahoo', false);
+  });
+
+  $('.yahoobutton-download').click(function() {
+    updateStatus("{% url 'admintools:api.ipstatus.yahoo' %}", $(this), 'yahoo', true);
+  });
+
+  $('.mercaributton').click(function() {
+    updateStatus("{% url 'admintools:api.ipstatus.mercari' %}", $(this), 'mercari', false);
+  });
+
+  $('.mercaributton-download').click(function() {
+    updateStatus("{% url 'admintools:api.ipstatus.mercari' %}", $(this), 'mercari', true);
+  });
+
+
+
+});
+{% endblock %}
+
+{% block html_body %} 
+<div class="container">
+  <center>
+    <h2>IP Status Checker</h2>
+    <br>
+    <p>以下の表からチェックする対象のIPを選択してください。</p>
+  </center>
+
+  <table width="95%" border="1" style="table-layout: fixed;">
+	  <tr width="100%">
+	    <th width="25%"  style="background-color:silver">Site</th>
+	    <th width="75%" style="background-color:silver">チェック用URL (商品検索画面)</th>
+    </tr>
+    <tr>
+      <td>Amazon</td>
+      <td><input id="checkurl-amazon" type="text" style="width: 100%;" value="https://www.amazon.co.jp/s?k=DVD"/></td>
+    </tr>
+    <tr>
+      <td>Yahoo</td>
+      <td><input id="checkurl-yahoo" type="text" style="width: 100%;" value="https://auctions.yahoo.co.jp/search/search?va=DVD&vo=&ve=&ngrm=0&fixed=0&auccat=0&aucminprice=&aucmaxprice=&aucmin_bidorbuy_price=&aucmax_bidorbuy_price=&l0=0&abatch=0&istatus=0&gift_icon=0&charity=&slider=0&ei=UTF-8&f_adv=1&fr=auc_adv&f=0x2"/></td>
+    </tr>
+    <tr>
+      <td>Mercari</td>
+      <td><input id="checkurl-mercari" type="text" style="width: 100%;" value="https://www.mercari.com/jp/search/?keyword=DVD"/></td>
+    </tr>
+  </table>
+  <div style="padding-top: 20px;"></div>
+  <table width="95%" border="1" style="table-layout: fixed;">
+	  <tr width="100%">
+	    <th width="5%"  style="background-color:silver">No</th>
+	    <th width="20%" style="background-color:silver">ユーザー名</th>
+	    <th width="15%" style="background-color:silver">設定済IPアドレス</th>
+	    <th width="20%" style="background-color:silver">Amazon</th>
+	    <th width="20%" style="background-color:silver">Yahoo</th>
+	    <th width="20%" style="background-color:silver">Mercari</th>
+    </tr>
+    <tr>
+      <td>0</td>
+      <td>サーバーローカル(IP使用なし)</td>
+      <td>
+        server
+        <input type="hidden" id="ipaddr-0" value="server" />
+      </td>
+      <td class="center">
+        <span class="label label-default" style="font-size: 90%;" id="result-amazon-0">未確認</span>
+        <br>
+        <button class="amazonbutton" btnindex="0">Check</button>
+        <button class="amazonbutton-download" btnindex="0">Download Source</button>
+      </td>
+      <td class="center">
+        <span class="label label-default" style="font-size: 90%;" id="result-yahoo-0">未確認</span>
+        <br>
+        <button class="yahoobutton" btnindex="0">Check</button>
+        <button class="yahoobutton-download" btnindex="0">Download Source</button>
+      </td>
+      </td>
+       <td class="center">
+        <span class="label label-default" style="font-size: 90%;" id="result-mercari-0">未確認</span>
+        <br>
+        <button class="mercaributton" btnindex="0">Check</button>
+        <button class="mercaributton-download" btnindex="0">Download Source</button>
+      </td>
+      <td class="center">
+      </td>
+    </tr>
+
+	  {% for row in rows %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td>{{ row.user.username }}</td>
+      <td>
+        {{ row.ipaddress }}
+        <input type="hidden" id="ipaddr-{{ forloop.counter }}" value="{{row.ipaddress}}" />
+      </td>
+      <td class="center">
+        <span class="label label-default" style="font-size: 90%;" id="result-amazon-{{ forloop.counter }}">未確認</span>
+        <br>
+        <button class="amazonbutton" btnindex="{{ forloop.counter }}">Check</button>
+        <button class="amazonbutton-download" btnindex="{{ forloop.counter }}">Download Source</button>
+      </td>
+      <td class="center">
+        <span class="label label-default" style="font-size: 90%;" id="result-yahoo-{{ forloop.counter }}">未確認</span>
+        <br>
+        <button class="yahoobutton" btnindex="{{ forloop.counter }}">Check</button>
+        <button class="yahoobutton-download" btnindex="{{ forloop.counter }}">Download Source</button>
+      </td>
+       <td class="center">
+        <span class="label label-default" style="font-size: 90%;" id="result-mercari-{{ forloop.counter }}">未確認</span>
+        <br>
+        <button class="mercaributton" btnindex="{{ forloop.counter }}">Check</button>
+        <button class="mercaributton-download" btnindex="{{ forloop.counter }}">Download Source</button>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}
+
+
+

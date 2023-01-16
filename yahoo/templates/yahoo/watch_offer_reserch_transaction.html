@@ -1,0 +1,354 @@
+{% extends 'base.html' %}
+
+{% load widget_tweaks %}
+
+{% block title %}メルカリッチくん{% endblock %}
+
+{% block script_top %}
+$(function() {
+    var messages = {
+        over: [
+            '最大登録商品数(##MAX##件)を超えたため、処理を中断しました。',
+            '不要な商品を削除して頂き、再実行をお願いします。',
+            'または、出品上限数アップオプションをご購入ください。',
+        ], 
+        searching: [
+            'ただいま検索処理中です。',
+        ], 
+        notFound: [
+            '処理が完了しました。',
+            '出品商品は、見つかりませんでした。'
+        ], 
+        doneWithoutCsv: [
+            '処理が完了しました。',
+            'Amazon相乗り出品用CSV出力画面より、CSVを出力してCSVファイルをダウンロードして、',
+            'Amazonセラーセントラルにアップロードしてください。'
+        ],
+        doneWithCsv: [
+            '処理が完了しました。',
+            'AMAZON相乗り・新規出品用ファイルダウンロード画面より、相乗りCSVファイルをダウンロードして、',
+            'Amazonセラーセントラルにアップロードしてください。'
+        ],
+        skipWaiting: [
+            '現在検索中のURLをスキップしています。'
+        ],
+        stopWaiting: [
+            '処理の中断を受け付けました。',
+            '１〜２分程度で処理が停止します。'
+        ]
+    };
+
+    var renderMessage = function(target, msgs) {
+        target.empty();
+        for (var i = 0 ; i < msgs.length; i++) {
+            var p = $('<p></p>');
+            p.text(msgs[i]);
+            target.append(p);
+        }
+    };
+
+    var updateStatus = function(data) {
+        if (!data.exists) {
+            // 検索データがない場合は検索ページへ飛ぶ
+            location.href = '{% url 'yahoo:amazon_offer_research'  %}';
+            return;
+        }
+        $('#updated').text(data.now);
+        $('#startdate').text(data.start_time);
+        $('#status').text(data.status);
+        $('#progress').text(data.duration);
+        $('#search_count').text(data.total);
+        $('#match_count').text(data.feed_item);
+        $('#new_candidate_count').text(data.new_feed_item_candidate);
+        $('#enddate').text(data.end_time);
+
+        if (typeof data.search_urls !== 'undefined' && data.search_urls.length > 0) {
+            var tab = $('#url_table');
+            var tbody = $('<tbody></tbody>');
+            var found_running = false;
+            var current_total = data.total;
+            var current_feed = data.feed_item;
+            var current_new_feed = data.new_feed_item_candidate;
+            for (var i = 0; i < data.search_urls.length; i++) {
+                var search = data.search_urls[i];
+                var progress = '未完了';
+                if (search.completed) {
+                    progress = '完了';
+                } else if (!found_running) {
+                    progress = '実行中';
+                    found_running = true;
+                }
+                var url = search.url;
+                if (url.length > 60) {
+                    url = url.substr(0, 60) + '...';
+                }
+                var row = $('<tr></tr>');
+                row.append('<td>' + (search.order+1) + '</td>');
+                row.append('<td>' + progress + '</td>');
+                if (progress === '完了') {
+                    row.append('<td>&nbsp;' + search.total_count + '</td>');
+                    row.append('<td>&nbsp;' + search.feed_count + '</td>');
+                    row.append('<td>&nbsp;' + search.new_feed_count + '</td>');
+                    // ここの分を全体の数値から減少
+                    current_total -= search.total_count;
+                    current_feed -= search.feed_count;
+                    current_new_feed -= search.new_feed_count;
+                } else if (progress === '実行中') {
+                    row.append('<td>&nbsp;' + current_total + '</td>');
+                    row.append('<td>&nbsp;' + current_feed + '</td>');
+                    row.append('<td>&nbsp;' + current_new_feed + '</td>');
+                } else {
+                    row.append('<td> N/A </td>');
+                    row.append('<td> N/A </td>');
+                    row.append('<td> N/A </td>');
+                }
+                row.append('<td><a target="_blank" href="' + data.search_urls[i].url + '">' + url + '</a></td>');
+                row.append('<td>' + search.exectime + '</td>');
+                if (progress === '完了') {
+                    row.append('<td>' + search.completeDatetime + '</td>');
+                } else {
+                    row.append('<td> </td>');
+                }
+                {% comment %} tanaka {% endcomment %}
+                tbody.append(row);
+            }
+            tab.empty();
+            tab.append('<thead><tr style="background-color: silver;">' + 
+                '<td style="width: 40px">#</td>' + 
+                '<td style="width: 60px">進捗</td>' + 
+                '<td style="width: 70px">検索件数</td>' + 
+                '<td style="width: 70px">相乗出品</td>' + 
+                '<td style="width: 70px">新規出品</td>' + 
+                '<td>URL(クリックすると検索元ページを開きます)</td>' + 
+                '<td style="width: 130px">検索にかかった時間</td>' +
+                '<td style="width: 130px">完了日時</td>' +
+                {% comment %} tanaka  {% endcomment %}
+                '</tr></thead>');
+            tab.append(tbody);
+            tab.show();
+        } else {
+            $('#url_table').hide();
+        }
+
+        if (data.is_over_items) {
+            var msgs = Array();
+            for (var idx = 0; idx < messages.over.length; idx++) {
+                msgs.push(messages.over[idx].replace('##MAX##', data.max_items));
+            }
+            renderMessage($('#error_box'), msgs);
+        } else if (typeof data.error_info !== 'undefined' && data.error_info.length > 0) {
+            renderMessage($('#error_box'), [data.error_info]);
+        } else {
+            $('#error_box').empty();
+        }
+        
+        if (data.status == 0) {
+            renderMessage($('#message_box'), messages.searching);
+        } else if (data.status == 1) {
+            if (data.feed_item > 0 || data.new_feed_item_candidate > 0) {
+                renderMessage($('#message_box'), messages.doneWithoutCsv);
+            } else {
+                renderMessage($('#message_box'), messages.notFound);
+            }
+            $('#close_box').show();
+        } else if (data.status == 2) {
+            if (data.feed_item > 0 || data.new_feed_item_candidate > 0) {
+                renderMessage($('#message_box'), messages.doneWithCsv);
+            } else {
+                renderMessage($('#message_box'), messages.notFound);
+            }
+            $('#close_box').show();
+        } else if (data.status == 8) {
+            renderMessage($('#message_box'), messages.skipWaiting);
+        } else if (data.status == 9) {
+            renderMessage($('#message_box'), messages.stopWaiting);
+        }
+
+        if (data.is_over_items || data.status != 0) {
+            $('#stopform').hide();
+            $('#addurl-form').hide();
+            $('#Interrupturl-form').hide();
+        } else {
+            $('#stopform').show();
+            $('#addurl-form').show();
+            $('#Interrupturl-form').show();
+        }
+
+    };
+
+    var update = function() {
+        $.ajax({
+            url: '{% url 'yahoo:api.progress.amazon_offer_research' %}', 
+            type: 'GET',
+        }).done(updateStatus).fail(function(data) {
+            console.log(data);  
+        });
+    };
+
+    var timer = setInterval(update, 5000);
+
+    update();
+});
+{% endblock %}
+
+{% block script_onload %}
+
+Utils.selectYahoo();
+{% if message %}
+Utils.dialog('{{ message }}', '{{ message_detail}}');
+{% endif %}
+
+{% endblock %}
+
+
+{% block html_body %} 
+
+<center><h2>Amazon一括出品データ作成ステータス（ヤフオク）</h2>
+<br>
+<div class="event_message">
+  <div id="error_box" style="color: red"></div>
+  <div id="message_box"></div>
+  <div id="close_box" style="display: none">
+    <form id="form_for_close" action="{% url 'yahoo:amazon_offer_research'  %}" method="post">
+      {% csrf_token %}
+      <input type="hidden" name="close" value="close">
+      <input type="submit" value="了解" />
+    </form>
+  </div>
+</div>
+<br>
+<center>
+  <table  border="1" style="table-layout: fixed;">
+    <tr>
+      <td  width="300px" class="td" style="background-color:silver">開始日時</td>
+      <td  id="startdate" width="300px" class="td" ></td>
+    </tr>
+    <tr>
+      <td  width="300px" class="td" style="background-color:silver">経過時間</td>
+      <td  id="progress" width="300px" class="td" ></td>
+    </tr>
+    <tr>
+      <td  width="300px" class="td" style="background-color:silver">総検索件数</td>
+      <td  id="search_count" width="300px" class="td" ></td>
+    </tr>
+    <!--
+    <tr>
+      <td  width="300px" class="td" style="background-color:silver">出品禁止商品除外件数</td> 
+      <td  width="300px" class="td" >{{ data.exclude_asin }}</td>
+    </tr>
+    <tr>
+      <td  width="300px" class="td" style="background-color:silver">PRIME除外件数</td>
+      <td  width="300px" class="td" >{{ data.prime }}</td>
+    </tr>
+    <tr>
+      <td  width="300px" class="td" style="background-color:silver">ヤフオク検索0件件数</td>
+      <td  width="300px" class="td" >{{ data.not_found }}</td>
+    </tr>
+    <tr>
+      <td  width="300px" class="td" style="background-color:silver">禁止セラー除外件数</td>
+      <td  width="300px" class="td" >{{ data.exclude_seller }}</td>
+    </tr>
+    <tr>
+      <td  width="300px" class="td" style="background-color:silver">商品条件不一致</td>
+      <td  width="300px" class="td" >{{ data.condition_different }}</td>
+    </tr>
+    -->
+    <tr>
+      <td  width="300px" class="td" style="background-color:silver">出品商品件数</td>
+      <td  id="match_count" width="300px" class="td" ></td>
+    </tr>
+    <tr>
+      <td  width="300px" class="td" style="background-color:silver">新規出品候補数</td>
+      <td  id="new_candidate_count" width="300px" class="td" ></td>
+    </tr>
+    <tr>
+      <td  width="300px" class="td" style="background-color:silver">終了日時</td>
+      <td  id="enddate" width="300px" class="td" ></td>
+    </tr>
+    <tr>
+      <td  width="300px" class="td" style="background-color:silver">情報確認日時</td>
+      <td  id="updated" width="300px" class="td" ></td>
+    </tr>
+  </table>
+  <br>
+  <div id="stopform" style="display: none">
+    <form action="{% url 'yahoo:amazon_offer_research'  %}" method="post" style="display: inline;">
+      {% csrf_token %}
+      <input type="hidden" name="skip" value="skip">
+      <input type="submit" value="現在のURLをスキップ" style="width: 180px;" />
+    </form>
+    <div style="display: inline; padding-left: 60px;"></div>
+    <form action="{% url 'yahoo:amazon_offer_research'  %}" method="post" style="display: inline;">
+      {% csrf_token %}
+      <input type="hidden" name="stop" value="stop">
+      <input type="submit" value="検索を停止" style="width: 180px;"/>
+    </form>
+  </div>
+
+  <br>
+  <table  id="url_table" border="1" style="table-layout: fixed; width: 1000px; display: none;">
+  </table>
+  <br>
+  <form id="addurl-form" action="{% url 'yahoo:amazon_offer_research'  %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="addurl" value="addurl">
+    <div id="add-url-message" style="color: red"></div>
+    <table  id="insert_table" border="1" style="table-layout: fixed; width: 1000px;">
+      <tr>
+        <th class="td" style="background-color:silver; width: 85%;">
+          検索対象URL追加(合計未完了URLが10個未満の場合に追加できます)
+        </th>
+        <th class="td" style="background-color:silver;"></th>
+      </tr>
+      <tr>
+        <td>
+          <input type="radio" name="search_type" value="0" checked="checked" /> URL
+          &nbsp; &nbsp;
+          <input type="radio" name="search_type" value="1" />キーワード
+        </td>
+        <td style="text-align: center" rowspan="2">
+          <button id="add-url-button" type="submit">追加</button>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <input id="add-url-text" name="url" type="text" style="width: 100%"></input>
+        </td>
+      </tr>
+    </table>
+  </form>
+  <br>
+  <form id="Interrupturl-form" action="{% url 'yahoo:amazon_offer_research'  %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="Interrupturl" value="Interrupturl">
+    <div id="interrupt-url-message" style="color: red"></div>
+    <table  id="insert_table" border="1" style="table-layout: fixed; width: 1000px;">
+      <tr>
+        <th class="td" style="background-color:silver; width: 85%;">
+          検索対象URL割り込み(合計未完了URLが10個未満の場合に追加できます)
+        </th>
+        <th class="td" style="background-color:silver;"></th>
+      </tr>
+      <tr>
+        <td>
+          <input type="radio" name="search_type" value="0" checked="checked" /> URL
+          &nbsp; &nbsp;
+          <input type="radio" name="search_type" value="1" />キーワード
+        </td>
+        <td style="text-align: center" rowspan="2">
+          <button id="interrupt-url-button" type="submit">割り込み</button>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <input id="interrupt-url-text" name="url" type="text" style="width: 100%"></input>
+        </td>
+      </tr>
+    </table>
+  </form>
+  <br>
+  <p>* 画面は、五秒毎に自動更新されます。</p>
+
+</center>
+{% endblock %}
+

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% load widget_tweaks %}
+
+{% block title %} Amazon API設定 {% endblock %}
+
+{% block script_onload %} 
+$(".navbar-brand").addClass("active");
+{% endblock %}
+
+{% block html_body %} 
+<div class="container">
+  <center><h2>AmazonAPI設定</h2></center>
+
+  <div class="container">
+    <form class="form-horizontal" action="{% url 'settings_amazon:default_settings'  %}" method="post">
+      {% csrf_token %}
+      <div class="form-group">
+	{{ form.condition.label_tag }}<br>
+	{{ form.condition | add_class:"form-control" }}<br>
+      </div>
+      <div class="form-group">
+	{{ form.condition_note.label_tag }}<br>
+	{{ form.condition_note | add_class:"form-control" }}<br>
+      </div>
+      <div class="form-group">
+	{{ form.part_number.label_tag }}<br>
+	{{ form.part_number | add_class:"form-control" }}<br>
+      </div>
+      <div class="form-group">
+	{{ form.fulfillment_latency.label_tag }}<br>
+	{{ form.fulfillment_latency | add_class:"form-control" }}<br>
+      </div>
+      <input type="submit" value="登録" />
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+
+

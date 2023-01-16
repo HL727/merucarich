@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% load widget_tweaks %}
+
+{% block title %}メルカリッチくん{% endblock %}
+
+
+{% block script_onload %}
+
+Utils.selectYahoo();
+{% if message %}
+Utils.dialog('{{ message }}', '{{ message_detail}}');
+{% endif %}
+
+{% endblock %}
+
+{% block html_body %} 
+
+<center><h2>相乗出品編集</h2></center>
+<br>
+<form  action="{% url 'yahoo:edit_amazon_offer' %}" method="post">
+  {% csrf_token %}
+  <center>
+    <table width="90%" border=1 style="table-layout: fixed;">
+      <tr>
+	<td width="15%">SKU</td>
+	<td colspan="7" width="85%">{{ form.item_sku | add_class:"feed-form-input" | attr:"readonly:readonly" }}</td>
+      </tr>
+      <tr>
+	<td width="15%">ASIN</td>
+	<td colspan="3" width="25%">{{ form.external_product_id_type | add_class:"feed-form-input" | attr:"readonly:readonly"  }}</td>
+	<td colspan="4" width="60%">{{ form.external_product_id | add_class:"feed-form-input" | attr:"readonly:readonly" }}</td>
+      </tr>    
+      <tr>
+	<td width="15%">コンデション</td>
+	<td colspan="7" width="85%">{{ form.condition_type | add_class:"feed-form-input" }}</td>
+      </tr>
+      <tr>
+	<td width="15%">コンデションの説明</td>
+	<td colspan="7" width="85%">{{ form.condition_note | add_class:"feed-form-input" }}</td>
+      </tr>
+      <tr>
+	<td width="15%">販売価格</td>
+	<td colspan="7" width="85%">{{ form.standard_price | add_class:"feed-form-input" }}</td>
+      </tr>
+      <tr>
+	<td width="15%">ポイント</td>
+	<td colspan="7" width="85%">{{ form.standard_price_points | add_class:"feed-form-input" }}</td>
+      </tr>
+      <tr>
+	<td width="15%">在庫数</td>
+	<td colspan="7" width="85%">{{ form.quantity  | add_class:"feed-form-input" }}</td>
+      </tr>
+      <tr>
+	<td width="15%">リードタイム（日）</td>
+	<td colspan="7" width="85%">{{ form.fulfillment_latency  | add_class:"feed-form-input" }}</td>
+      </tr>
+      <tr>
+	<td colspan="8" width="100%">
+	  <input type="submit" value="登録">
+	</td>
+      </tr>
+    </table>
+  </center>
+
+</form>
+
+<script>
+
+  function copy_image_path(from, to) {
+     $(to).val($(from).attr('src'));
+  }
+  
+</script>
+
+<br>
+<br>
+<br>
+
+{% endblock %}

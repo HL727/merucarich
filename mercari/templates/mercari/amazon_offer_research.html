@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+
+{% load widget_tweaks %}
+
+{% block title %}メルカリッチくん{% endblock %}
+
+
+{% block script_onload %}
+
+Utils.selectMercari();
+{% if message %}
+Utils.dialog('{{ message }}', '{{ message_detail}}');
+{% endif %}
+
+
+$('#id_condition_all').on('click', function() {
+$('input[name^=condition_id_]').prop('checked', this.checked);
+});
+
+$('#id_shipping_payer_all').on('click', function() {
+$('input[name^=shipping_payer_id_]').prop('checked', this.checked);
+});
+
+$('#id_status_all').on('click', function() {
+$('input[name^=status_id_]').prop('checked', this.checked);
+});
+
+// すべて以外が操作された場合
+
+$('input[name^=condition_id_]').on('click', function() {
+var len = $('input[name^=condition_id_]:checked').length;
+var val = len == 6 ? true : false;
+$('#id_condition_all').prop('checked',val) 
+});
+
+$('input[name^=shipping_payer_id_]').on('click', function() {
+var len = $('input[name^=shipping_payer_id_]:checked').length;
+var val = len == 2 ? true : false;
+$('#id_shipping_payer_all').prop('checked',val) 
+});
+
+$('input[name^=status_id_]').on('click', function() {
+var len = $('input[name^=status_id_]:checked').length;
+var val = len == 2 ? true : false;
+$('#id_status_all').prop('checked',val) 
+});
+
+$(function() {
+    $('#show-extra-keywords').click(function() {
+        $(this).hide();
+        $('#extra-keywords').show();
+    });
+});
+
+{% endblock %}
+
+{% block html_body %} 
+<div class="container">
+  <center><h2>Amazon一括出品データ生成（メルカリ）</h2></center>
+
+  <form class="form-horizontal" action="{% url 'mercari:amazon_offer_research'  %}" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <div class="panel panel-default" style="width:100%">
+	<div class="panel-heading" style="text-align:left">Amazon検索指定条件</div>
+	<div class="panel-body" style="text-align: left;">
+	  {{ form.search_type.0 }}&nbsp&nbsp&nbsp{{ form.search_type.1 }} <br>
+	  {{ form.keyword | add_class:"form-control" }}<br>
+    <div id="show-extra-keywords">
+      <a href="#" onclick="">さらに入力を行うにはここをクリックしてください。</a><br>
+    </div>
+    <div id="extra-keywords" style="display: none">
+	    {{ form.extra_keyword1 | add_class:"form-control" }}<br>
+	    {{ form.extra_keyword2 | add_class:"form-control" }}<br>
+	    {{ form.extra_keyword3 | add_class:"form-control" }}<br>
+	    {{ form.extra_keyword4 | add_class:"form-control" }}<br>
+	    {{ form.extra_keyword5 | add_class:"form-control" }}<br>
+	    {{ form.extra_keyword6 | add_class:"form-control" }}<br>
+	    {{ form.extra_keyword7 | add_class:"form-control" }}<br>
+	    {{ form.extra_keyword8 | add_class:"form-control" }}<br>
+	    {{ form.extra_keyword9 | add_class:"form-control" }}<br>
+      <p>※使わない欄は空白のままにしてください。</p>
+    </div>
+
+	</div>
+      </div>
+
+      <div class="panel panel-default" style="width:100%">
+	<div class="panel-heading" style="text-align:left">メルカリ検索指定条件</div>
+	<div class="panel-body" style="text-align: left;">
+	  <table  width="100%">
+	    <tr>
+	      <td width="10%">
+		{{ form.similarity.label_tag }}
+	      </td>
+	      <td width="90%">
+		{{ form.similarity }}&nbsp 以上
+	      </td>
+	    </tr>
+	    <tr>
+	      <td width="10%">
+		{{ form.rateing.label_tag }}
+	      </td>
+	      <td width="90%">
+		{{ form.rateing }}&nbsp[%]以上
+	      </td>
+	    </tr>
+	    <tr>
+	      <td width="10%">
+		<b>商品の状態:</b>
+	      </td>
+	      <td width="90%">
+		{{ form.condition_all.label_tag }}
+		{{ form.condition_all }}&nbsp&nbsp&nbsp
+		{{ form.condition_id_1.label_tag }}
+		{{ form.condition_id_1 }}&nbsp&nbsp&nbsp
+		{{ form.condition_id_2.label_tag }}
+		{{ form.condition_id_2 }}&nbsp&nbsp&nbsp
+		{{ form.condition_id_3.label_tag }}
+		{{ form.condition_id_3 }}&nbsp&nbsp&nbsp
+		{{ form.condition_id_4.label_tag }}
+		{{ form.condition_id_4 }}&nbsp&nbsp&nbsp
+		{{ form.condition_id_5.label_tag }}
+		{{ form.condition_id_5 }}&nbsp&nbsp&nbsp
+		{{ form.condition_id_6.label_tag }}
+		{{ form.condition_id_6 }}&nbsp&nbsp&nbsp
+		{{ form.condition_id_7.label_tag }}
+		{{ form.condition_id_7 }}
+	      </td>
+	    </tr>
+	    <tr>
+	      <td width="10%">
+		<b>送料負担:</b>
+	      </td>
+	      <td width="90%">
+		{{ form.shipping_payer_all.label_tag }}
+		{{ form.shipping_payer_all }}&nbsp&nbsp&nbsp
+		{{ form.shipping_payer_id_1.label_tag }}
+		{{ form.shipping_payer_id_1 }}&nbsp&nbsp&nbsp
+		{{ form.shipping_payer_id_2.label_tag }}
+		{{ form.shipping_payer_id_2 }}
+	      </td>
+	    </tr>
+	    <tr> 
+	      <td width="10%">
+		<b>販売状況:</b>
+	      </td>
+	      <td width="90%">
+		{{ form.status_all.label_tag }}
+		{{ form.status_all }}&nbsp&nbsp&nbsp
+		{{ form.status_id_on_sale.label_tag }}
+		{{ form.status_id_on_sale }}&nbsp&nbsp&nbsp
+		{{ form.status_id_trading_sold_out.label_tag }}
+		{{ form.status_id_trading_sold_out }}
+	      </td>
+	    </tr>
+	    <tr>
+	      <td width="10%">
+		<b>検索優先順位:</b>
+	      </td>
+	      <td width="90%">
+		{{ form.sort_order.label_tag }}
+		{{ form.sort_order }}
+	      </td>
+	    </tr>
+	    <tr>
+	      <td width="10%">
+		{{ form.is_export_csv.label_tag }}
+	      </td>
+	      <td width="90%">
+		{{ form.is_export_csv }}
+	      </td>
+	    </tr>
+	    <tr>
+	      <td>
+		<br>
+		<input type="submit" value="検索">
+	      </td>
+	    </tr>
+	</div>
+      </div>
+    </div>
+  </form>
+</div>
+
+{% endblock %}
+
+
+
+

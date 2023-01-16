@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% load widget_tweaks %}
+
+{% block title %}メルカリッチくん{% endblock %}
+
+
+{% block script_onload %}
+
+Utils.selectAmazonSetting();
+{% if message %}
+Utils.dialog('{{ message }}', '{{ message_detail}}');
+{% endif %}
+
+{% endblock %}
+
+{% block html_body %} 
+<div class="container">
+  <center><h2>禁止ASIN設定</h2></center>
+  <br>
+  <b>出品を禁止したいASINを設定します。</b>
+  <br>
+  <br>
+  <form class="form-horizontal" action="{% url 'settings_amazon:exclude_asin'  %}" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      {{ form.asin.label_tag }}<br>
+      {{ form.asin | add_class:"form-control" }}<br>
+      {{ form.memo.label_tag }}<br>
+      {{ form.memo | add_class:"form-control" }}<br>
+    </div>
+    <input type="submit" value="登録" />
+  </form>
+
+  <br>
+
+  {% if asins.count > 0 %} 
+  <form class="form-horizontal" action="{% url 'settings_amazon:delete_exclude_asin'  %}" method="post">
+    <table class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th class="col-xs-1">ID</th>
+          <th class="col-xs-1">削除</th>
+          <th>ASIN</th>
+	  <th>メモ</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for asin in asins %}
+        <tr>
+          <td>{{ asin.local_id }}</td>
+          <td><input type="checkbox" name="delete_ids" value="{{ asin.id }}"></td>
+          <td>{{ asin.asin }}</td>
+	  <td>{% if asin.memo != None %}{{ asin.memo }}{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% csrf_token %}
+    <input type="submit" value="削除">
+  </form>
+</div>
+{% endif %}
+
+{% endblock %}
+
+
+

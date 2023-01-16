@@ -1,0 +1,16 @@
+[Unit]
+Description=Mercarich AsyncWorkers
+
+[Service]
+WorkingDirectory = /var/www/richs
+ExecStart=/var/www/richs/asyncworker/run.sh
+User=richs
+Group=richs
+Restart=always
+Type=forking
+StandardError=syslog
+NotifyAccess=all
+
+[Install]
+WantedBy=multi-user.target
+

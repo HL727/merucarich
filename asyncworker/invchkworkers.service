@@ -1,0 +1,16 @@
+[Unit]
+Description=Mercarich Inventory-Check Workers
+
+[Service]
+WorkingDirectory = /var/www/richs
+ExecStart=/var/www/richs/asyncworker/invchk_run.sh
+User=richs
+Group=richs
+Restart=always
+Type=forking
+StandardError=syslog
+NotifyAccess=all
+
+[Install]
+WantedBy=multi-user.target
+

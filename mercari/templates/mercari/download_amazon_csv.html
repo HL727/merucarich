@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% load widget_tweaks %}
+
+{% block title %}メルカリッチくん{% endblock %}
+
+
+{% block script_onload %}
+
+Utils.selectMercari();
+{% if message %}
+Utils.dialog('{{ message }}', '{{ message_detail}}');
+{% endif %}
+
+{% endblock %}
+
+{% block html_body %} 
+
+<center><h2>【メルカリ】AMAZON相乗り・新規出品用ファイルダウンロード</h2></center>
+
+<table width="100%" style="table-layout: fixed;">
+  <tr>
+    <td width="50%" valign="top">
+      <center>相乗り出品用CSV</center>
+    </td>
+    <td width="50%" valign="top">
+      <center>新規出品用CSV</center>
+    </td>      
+  <tr>
+  <tr valign="top">
+    <td width="50%" valign="top" style="vertical-align: top;">
+      <table width="90%" border="1" style="table-layout: fixed;" >
+	<tr>
+	  <th width="10%" class="th" style="background-color:silver">No</th>
+	  <th width="45%" class="th" style="background-color:silver">ダウンロード</th>
+	  <th width="45%" class="th" style="background-color:silver">出力時間</th>
+	</tr>
+	{% for csv in offer_feed_csv %}	
+	<tr>
+	  <td width="10%" class="td" >{{ csv.local_id }}</td>
+	  <td width="45%" class="td" ><a href="{{image_base}}/{{ csv.file_name }}">ダウンロード</a></td>
+	  <td width="45%" class="td" >{{ csv.created_date }}</td>
+	</tr>
+	{% endfor %}
+      </table>
+    </td>
+    <td width="50%" valign="top" style="vertical-align: top;">
+      <table width="90%" border="1" style="table-layout: fixed;" valign="top">
+	<tr>
+	  <th  width="10%" class="th" style="background-color:silver">No</th>
+	  <th  width="45%" class="th" style="background-color:silver">ダウンロード</th>
+	  <th  width="45%" class="th" style="background-color:silver">出力時間</th>
+	</tr>
+	{% for csv in new_feed_csv %}
+	<tr>
+	  <td  width="10%" class="td" >{{ csv.local_id }}</td>
+	  <td  width="45%" class="td" ><a href="{{image_base}}/{{ csv.file_name }}">ダウンロード</a></td>
+	  <td  width="45%" class="td" >{{ csv.created_date }}</td>
+	</tr>
+	{% endfor %}	
+      </table>
+    </td>      
+  <tr>
+</table>
+
+{% endblock %}
+
+
+
+
+
+
+
+
